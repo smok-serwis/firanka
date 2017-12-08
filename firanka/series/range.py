@@ -24,12 +24,12 @@ class Range(object):
     """
     def __init__(self, *args):
         if len(args) == 1:
-
-            if isinstance(args[0], type(self)):
-                start = args[0].start
-                stop = args[0].stop
-                lend_inclusive = args[0].lend_inclusive
-                rend_inclusive = args[0].rend_inclusive
+            rs, = args
+            if isinstance(rs, type(self)):
+                start = rs.start
+                stop = rs.stop
+                lend_inclusive = rs.lend_inclusive
+                rend_inclusive = rs.rend_inclusive
             else:
                 rs, = args
 
@@ -40,8 +40,7 @@ class Range(object):
                 lend_inclusive = rs[0] == '<'
                 rend_inclusive = rs[-1] == '>'
 
-                rs = rs[1:-1]
-                start, stop = rs.split(';')
+                start, stop = rs[1:-1].split(';')
                 start = float(start)
                 stop = float(stop)
         else:
@@ -98,7 +97,7 @@ class Range(object):
         if (self.stop < y.start) or (y.stop < y.start):
             return EMPTY_RANGE
 
-        if self.stop == y.start and not (self.rend_inclusive or y.lend_inclusive):
+        if self.stop == y.start and not (self.rend_inclusive and y.lend_inclusive):
             return EMPTY_RANGE
 
         if self.start == y.start:

@@ -9,8 +9,10 @@ from firanka.series import Range
 class TestRange(unittest.TestCase):
 
     def do_intersect(self, a, b, val):
-        self.assertEqual(bool(Range(a).intersection(b)), val)
-        self.assertEqual(bool(Range(b).intersection(a)), val)
+        if bool(Range(a).intersection(b)) != val:
+            self.fail('%s ^ %s != %s' % (Range(a), Range(b), val))
+        if bool(Range(b).intersection(a)) != val:
+            self.fail('%s ^ %s != %s' % (Range(b), Range(a), val))
 
     def test_intersection(self):
         self.do_intersect(Range(-10, -1, True, True), '<2;3>', False)
@@ -23,6 +25,7 @@ class TestRange(unittest.TestCase):
     def test_constructor(self):
         self.assertRaises(ValueError, lambda: Range('#2;3>'))
         self.assertRaises(ValueError, lambda: Range('(2;3!'))
+        self.assertEqual(Range(1,2,True,False), Range('<1;2)'))
 
     def test_contains(self):
         self.assertFalse(-1 in Range('<-10;-1)'))
