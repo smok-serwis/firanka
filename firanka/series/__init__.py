@@ -23,5 +23,3 @@ class DataSeries(object):
             return self.data[-1] - self.data[0]
         except IndexError:
             return 0.0
-
-

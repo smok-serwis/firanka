@@ -1,4 +1,5 @@
 # firanka
+
 [![Build Status](https://travis-ci.org/smok-serwis/firanka.svg)](https://travis-ci.org/smok-serwis/firanka)
 [![Test Coverage](https://codeclimate.com/github/smok-serwis/firanka/badges/coverage.svg)](https://codeclimate.com/github/smok-serwis/firanka/coverage)
 [![Code Climate](https://codeclimate.com/github/smok-serwis/firanka/badges/gpa.svg)](https://codeclimate.com/github/smok-serwis/firanka)
