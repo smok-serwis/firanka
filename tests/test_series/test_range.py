@@ -5,11 +5,17 @@ import unittest
 from firanka.series import Range
 
 
+
 class TestRange(unittest.TestCase):
+
+    def do_intersect(self, a, b, val):
+        self.assertEqual(bool(Range(a).intersection(b)), val)
+        self.assertEqual(bool(Range(b).intersection(a)), val)
+
     def test_intersection(self):
-        self.assertFalse(Range(-10, -1, True, True).intersection('<2;3>'))
-        self.assertFalse(Range(-10, -1, True, False).intersection('(-1;3>'))
-        self.assertFalse(Range('<-10;-1)').intersection('<-1;1>'))
+        self.do_intersect(Range(-10, -1, True, True), '<2;3>', False)
+        self.do_intersect(Range(-10, -1, True, False), '(-1;3>', False)
+        self.do_intersect('<-10;-1)', '<-1;1>', False)
 
     def test_str(self):
         self.assertEqual(str(Range(-1, 1, True, True)), '<-1;1>')

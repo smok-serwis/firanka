@@ -24,21 +24,26 @@ class Range(object):
     """
     def __init__(self, *args):
         if len(args) == 1:
-            rs, = args
 
-            if (rs[0] not in '<(') or (rs[-1] not in '>)'):
-                raise ValueError('Must start with < or ( and end with ) or >')
+            if isinstance(args[0], type(self)):
+                start = args[0].start
+                stop = args[0].stop
+                lend_inclusive = args[0].lend_inclusive
+                rend_inclusive = args[0].rend_inclusive
+            else:
+                rs, = args
 
-            lend_inclusive = rs[0] == '<'
-            rend_inclusive = rs[-1] == '>'
+                if rs[0] not in '<(': raise ValueError('Must start with ( or <')
+                if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
+                if ';' not in rs: raise ValueError('Separator ; required')
 
-            rs = rs[1:-1]
-            start, stop = map(float, rs.split(';'))
-        elif isinstance(args[0], Range):
-            start = args[0].range
-            stop = args[0].stop
-            lend_inclusive = args[0].lend_inclusive
-            rend_inclusive = args[0].rend_inclusive
+                lend_inclusive = rs[0] == '<'
+                rend_inclusive = rs[-1] == '>'
+
+                rs = rs[1:-1]
+                start, stop = rs.split(';')
+                start = float(start)
+                stop = float(stop)
         else:
             start, stop, lend_inclusive, rend_inclusive = args
 
@@ -69,7 +74,6 @@ class Range(object):
         return self.stop - self.start
 
     def __repr__(self):
-        return str(self)
         return 'Range(%s, %s, %s, %s)' % (repr(self.start), repr(self.stop), repr(self.lend_inclusive), repr(self.rend_inclusive))
 
     def __bool__(self):
@@ -86,7 +90,6 @@ class Range(object):
 
     @pre_range
     def intersection(self, y):
-        print(str(self), str(y))
         if self.start > y.start:
             return y.intersection(self)
 
