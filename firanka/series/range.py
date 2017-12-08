@@ -40,10 +40,10 @@ class Range(object):
             rs, = args
             args = (self.__from_range if isinstance(rs, type(self)) else self.__from_str)(rs)
 
-        if args[2] and math.isinf(args[0]):
-            raise ValueError('Greater or equal with infinity!')
-        if args[3] and math.isinf(args[1]):
-            raise ValueError('Greater or equal with infinity!')
+        q = lambda a, b: args[a] and math.isinf(args[b])
+
+        if q(2, 0) or q(3, 1):
+            raise ValueError('Set with sharp closing but infinity set')
 
         self.start, self.stop, self.lend_inclusive, self.rend_inclusive = args
 
