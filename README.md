@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.org/smok-serwis/firanka.svg)](https://travis-ci.org/smok-serwis/firanka)
 [![Test Coverage](https://codeclimate.com/github/smok-serwis/firanka/badges/coverage.svg)](https://codeclimate.com/github/smok-serwis/firanka/coverage)
-[![Code Climate](https://codeclimate.com/github/smok-serwis/firanka/badges/gpa.svg)](https://codeclimate.com/github/smok-serwis/firanka)
-[![Issue Count](https://codeclimate.com/github/smok-serwis/firanka/badges/issue_count.svg)](https://codeclimate.com/github/smok-serwis/firanka)
+[![Maintainability](https://api.codeclimate.com/v1/badges/97a30fdc35e61f8d7c86/maintainability)](https://codeclimate.com/github/smok-serwis/firanka/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/97a30fdc35e61f8d7c86/test_coverage)](https://codeclimate.com/github/smok-serwis/firanka/test_coverage)
 [![PyPI version](https://badge.fury.io/py/firanka.svg)](https://badge.fury.io/py/firanka)
 [![PyPI](https://img.shields.io/pypi/pyversions/firanka.svg)]()
 [![PyPI](https://img.shields.io/pypi/implementation/firanka.svg)]()
