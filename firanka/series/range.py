@@ -3,7 +3,6 @@ from __future__ import print_function, absolute_import, division
 import six
 import logging
 import re
-from satella.coding import for_argument
 import functools
 import math
 
