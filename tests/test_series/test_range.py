@@ -9,7 +9,7 @@ class TestRange(unittest.TestCase):
 
         self.assertFalse(Range(-10, -1, True, True).intersection('<2;3>'))
         self.assertFalse(Range(-10, -1, True, False).intersection('(-1;3>'))
-        self.assertEquals(Range('<-10;-1)').intersection('<-1;1>'), '<-1;1>')
+        self.assertFalse(Range('<-10;-1)').intersection('<-1;1>'))
 
 
     def test_str(self):

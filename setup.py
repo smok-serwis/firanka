@@ -1,7 +1,5 @@
 # coding=UTF-8
 from setuptools import setup, find_packages
-from pip.req import parse_requirements
-
 
 from firanka import __version__
 
