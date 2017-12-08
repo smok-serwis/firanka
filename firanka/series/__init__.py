@@ -3,7 +3,11 @@ from __future__ import print_function, absolute_import, division
 import six
 import logging
 
-logger = logging.getLogger(__name__)
-
 from .exceptions import OutOfRangeError, EmptyDomainError
+from .range import Range
 
+__all__ = [
+    'OutOfRangeError',
+    'EmptyDomainError',
+    'Range'
+]

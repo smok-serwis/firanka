@@ -5,6 +5,7 @@ import logging
 import re
 from satella.coding import for_argument
 import functools
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,8 @@ class Range(object):
     def __init__(self, *args):
         if len(args) == 1:
             rs, = args
-            assert rs.startswith('<') or rs.startswith('(')
-            assert rs.endswith('>') or rs.endswith(')')
+            assert rs[0] in '<('
+            assert rs[-1] in '>)'
 
             lend_inclusive = rs[0] == '<'
             rend_inclusive = rs[-1] == '>'
@@ -40,6 +41,11 @@ class Range(object):
             rend_inclusive = args[0].rend_inclusive
         else:
             start, stop, lend_inclusive, rend_inclusive = args
+
+        if lend_inclusive and math.isinf(start):
+            raise ValueError('Greater or equal with infinity!')
+        if rend_inclusive and math.isinf(stop):
+            raise ValueError('Greater or equal with infinity!')
 
         self.start = start
         self.stop = stop
