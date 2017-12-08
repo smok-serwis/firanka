@@ -1,13 +1,10 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
 import unittest
 from firanka.series import Range
 
 
-
 class TestRange(unittest.TestCase):
-
     def do_intersect(self, a, b, val):
         if type(val) == bool:
             if bool(Range(a).intersection(b)) != val:
@@ -19,10 +16,14 @@ class TestRange(unittest.TestCase):
             self.assertEqual(Range(b).intersection(a), Range(val))
 
     def test_isempty(self):
-        self.assertFalse(Range(-1,-1,False,False))
-        self.assertTrue(Range(-1,-1,False,True))
-        self.assertTrue(Range(-1,-1,False,False).is_empty())
-        self.assertFalse(Range(-1,-1,False,True).is_empty())
+        def tf(r, p):
+            s = Range(r)
+            self.assertEqual(s, r)
+            self.assertEqual(s.is_empty(), not p)
+
+        tf(Range(-1,-1,False,False), False)
+        tf(Range(-1,-1,False,True), True)
+        self.assertEqual(Range(0,0,False,False), Range(2,2,False,False))
 
     def test_intersection(self):
         self.do_intersect(Range(-10, -1, True, True), '<2;3>', False)
