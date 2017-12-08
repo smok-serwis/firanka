@@ -10,6 +10,6 @@ install:
  - pip install --force-reinstall "coverage>=4.0,<4.4" codeclimate-test-reporter
 script:
  - python setup.py nosetests
- - python setup.py sdist
+ - python setup.py sdist bdist bdist_wheel
 after_success:
  - codeclimate-test-reporter
