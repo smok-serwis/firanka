@@ -41,7 +41,7 @@ class Range(object):
             args = {
                 True: self.__from_range,
                 False: self.__from_str
-            }[isinstance(rs, type(self))](op)
+            }[isinstance(rs, type(self))](rs)
 
         q = lambda a, b: args[a] and math.isinf(args[b])
 
