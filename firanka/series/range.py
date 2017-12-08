@@ -38,7 +38,7 @@ class Range(object):
     def __init__(self, *args):
         if len(args) == 1:
             rs, = args
-            args = self.__from_range(rs) if isinstance(rs, type(self)) else self.__from_str(rs)
+            args = (self.__from_range if isinstance(rs, type(self)) else self.__from_str)(rs)
 
         if args[2] and math.isinf(args[0]):
             raise ValueError('Greater or equal with infinity!')
