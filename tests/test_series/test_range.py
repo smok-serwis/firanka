@@ -14,6 +14,10 @@ class TestRange(unittest.TestCase):
     def test_str(self):
         self.assertEqual(str(Range(-1, 1, True, True)), '<-1;1>')
 
+    def test_constructor(self):
+        self.assertRaises(ValueError, lambda: Range('#2;3>'))
+        self.assertRaises(ValueError, lambda: Range('(2;3!'))
+
     def test_contains(self):
         self.assertFalse(-1 in Range('<-10;-1)'))
         self.assertTrue(-10 in Range('<-10;-1)'))

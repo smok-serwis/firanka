@@ -25,8 +25,9 @@ class Range(object):
     def __init__(self, *args):
         if len(args) == 1:
             rs, = args
-            assert rs[0] in '<('
-            assert rs[-1] in '>)'
+
+            if (rs[0] not in '<(') or (rs[-1] not in '>)'):
+                raise ValueError('Must start with < or ( and end with ) or >')
 
             lend_inclusive = rs[0] == '<'
             rend_inclusive = rs[-1] == '>'
