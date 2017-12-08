@@ -38,7 +38,10 @@ class Range(object):
     def __init__(self, *args):
         if len(args) == 1:
             rs, = args
-            args = (self.__from_range if isinstance(rs, type(self)) else self.__from_str)(rs)
+            args = {
+                True: self.__from_range,
+                False: self.__from_str
+            }[isinstance(rs, type(self))](op)
 
         q = lambda a, b: args[a] and math.isinf(args[b])
 
