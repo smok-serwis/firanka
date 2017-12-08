@@ -40,17 +40,12 @@ class Range(object):
             rs, = args
             args = self.__from_range(rs) if isinstance(rs, type(self)) else self.__from_str(rs)
 
-        start, stop, lend_inclusive, rend_inclusive = args
-
-        if lend_inclusive and math.isinf(start):
+        if args[2] and math.isinf(args[0]):
             raise ValueError('Greater or equal with infinity!')
-        if rend_inclusive and math.isinf(stop):
+        if args[3] and math.isinf(args[1]):
             raise ValueError('Greater or equal with infinity!')
 
-        self.start = start
-        self.stop = stop
-        self.lend_inclusive = lend_inclusive
-        self.rend_inclusive = rend_inclusive
+        self.start, self.stop, self.lend_inclusive, self.rend_inclusive = args
 
     def __contains__(self, x):
         if x == self.start:
