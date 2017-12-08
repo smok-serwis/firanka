@@ -10,3 +10,6 @@ class TestSeries(unittest.TestCase):
 
         ds = DataSeries()
         self.assertAlmostEqual(ds.length(), 0.0)
+
+        ds = DataSeries([[0,1], [10,2]])
+        self.assertAlmostEqual(ds.length(), 10.0)
