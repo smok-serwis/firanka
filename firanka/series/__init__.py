@@ -5,9 +5,13 @@ import logging
 
 from .exceptions import OutOfRangeError, EmptyDomainError
 from .range import Range
+from .series import DiscreteSeries, FunctionBasedSeries
+
 
 __all__ = [
     'OutOfRangeError',
     'EmptyDomainError',
-    'Range'
+    'Range',
+    'FunctionBasedSeries',
+    'DiscreteSeries'
 ]

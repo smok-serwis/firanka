@@ -28,6 +28,8 @@ class Range(object):
             rs, = args
             if isinstance(rs, type(self)):
                 args = rs.start, rs.stop, rs.left_inc, rs.right_inc
+            elif isinstance(rs, slice):
+                args = rs.start, rs.stop, True, True
             else:
                 if rs[0] not in '<(': raise ValueError('Must start with ( or <')
                 if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
@@ -41,20 +43,37 @@ class Range(object):
         if q(2, 0, args) or q(3, 1, args):
             raise ValueError('Set with sharp closing but infinity set')
 
-        print(args)
         self.start, self.stop, self.left_inc, self.right_inc = args
 
     def __contains__(self, x):
-        if x == self.start:
-            return self.left_inc
+        """
+        :type x: index or a Range
+        """
 
-        if x == self.stop:
-            return self.right_inc
+        if isinstance(x, (Range, six.text_type)):
+            if isinstance(x, six.text_type):
+                x = Range(x)
+            print('does ', self, 'contain', x)
 
-        return self.start < x < self.stop
+            if x.start == self.start:
+                if x.left_inc ^ self.left_inc:
+                    return False
+
+            if x.stop == self.stop:
+                if x.right_inc ^ self.right_inc:
+                    return False
+
+            return (x.start >= self.start) and (x.stop <= self.stop)
+        else:
+            if x == self.start:
+                return self.left_inc
+
+            if x == self.stop:
+                return self.right_inc
+
+            return self.start < x < self.stop
 
     def is_empty(self):
-        print(self.start, self.stop, self.left_inc, self.right_inc)
         return (self.start == self.stop) and not (self.left_inc or self.right_inc)
 
     def __len__(self):
