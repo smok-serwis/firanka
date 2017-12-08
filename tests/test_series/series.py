@@ -4,6 +4,7 @@ import six
 import unittest
 from firanka.series import DataSeries
 
+
 class TestSeries(unittest.TestCase):
     def test_ds(self):
 
