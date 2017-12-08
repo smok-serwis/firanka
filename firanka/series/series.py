@@ -5,7 +5,7 @@ import six
 import functools
 import itertools
 
-from .range import Range
+from .range import Range, REAL_SET
 
 
 class Series(object):
@@ -38,9 +38,18 @@ class Series(object):
     def apply(self, series, fun):
         return AppliedSeries(self, series, fun)
 
-    def compute(self):
-        """Simplify self"""
-        return self
+    def translate(self, x):
+        return TranslatedSeries(self, x)
+
+
+class TranslatedSeries(Series):
+    def __init__(self, series, x):
+        super(TranslatedSeries, self).__init__(self.domain.translate(x))
+        self.series = series
+        self.x = x
+
+    def _get_for(self, item):
+        return self.series._get_for(item+self.x)
 
 
 class SlicedSeries(Series):
@@ -50,6 +59,7 @@ class SlicedSeries(Series):
 
     def _get_for(self, item):
         return self.parent._get_for(item)
+
 
 class DiscreteSeries(Series):
 
@@ -66,6 +76,75 @@ class DiscreteSeries(Series):
                 return v
 
         raise RuntimeError('should never happen')
+
+    def translate(self, x):
+        return DiscreteSeries([(k+x, v) for k, v in self.data], self.domain.translate(x))
+
+    def apply(self, series, fun):
+        new_domain = self.domain.intersection(series.domain)
+
+        if isinstance(series, DiscreteSeries):
+            a = self.data[::-1]
+            b = series.data[::-1]
+
+            ptr = self.domain.start
+            c = [(ptr, fun(self._get_for(ptr), series._get_for(ptr)))]
+
+            def appendif(lst, ptr, v):
+                if len(lst) > 0:
+                    if lst[-1][0] >= ptr:
+                        return
+                lst.append((ptr, v))
+
+            while len(a) > 0 or len(b) > 0:
+                if len(a) > 0 and len(b) > 0:
+                    if a[-1] < b[-1]:
+                        ptr, v1 = a.pop()
+                        v2 = series._get_for(ptr)
+                    elif a[-1] > b[-1]:
+                        ptr, v1 = b.pop()
+                        v2 = self._get_for(ptr)
+                    else:
+                        ptr, v1 = a.pop()
+                        _, v2 = b.pop()
+
+                    assert ptr >= c[-1][0]
+
+                    appendif(c, ptr, fun(v1, v2))
+
+                else:
+                    if len(a) > 0:
+                        rest = a
+                        static_v = series._get_for(ptr)
+                        op = lambda me, const: fun(me, const)
+                    else:
+                        rest = b
+                        static_v = self._get_for(ptr)
+                        op = lambda me, const: fun(const, me)
+
+                    for ptr, v in rest:
+                        appendif(c, ptr, op(v, static_v))
+
+                    break
+        else:
+            if new_domain.start > self.data[0][0]:
+                c = [(new_domain.start, fun(self._get_for(new_domain.start), series._get_for(new_domain.start)))]
+            else:
+                c = []
+
+            for k, v in ((k, v) for k, v in self.data if new_domain.start <= k <= new_domain.stop):
+                newv = fun(v, series._get_for(k))
+
+                if len(c) > 0:
+                    if c[-1][1] == newv:
+                        continue
+
+                c.append((k, newv))
+
+            if c[-1][0] != new_domain.stop:
+                c.append((new_domain.stop, fun(self._get_for(new_domain.stop), series._get_for(new_domain.stop))))
+
+        return DiscreteSeries(c, new_domain)
 
     def compute(self):
         """Simplify self"""
@@ -94,54 +173,20 @@ class AppliedSeries(Series):
     def _get_for(self, item):
         return self.op(self.ser1._get_for(item), self.ser2._get_for(item))
 
-    def compute(self):
-        """
-        Attempt to simplify the call tree
-        """
-        if isinstance(self.ser1, DiscreteSeries) and isinstance(self.ser2,
-                                                                DiscreteSeries):
-            a = [p for p, q in reversed(self.ser1.data)]
-            b = [p for p, q in reversed(self.ser2.data)]
+class ModuloSeries(Series):
+    def __init__(self, series):
+        super(ModuloSeries, self).__init__(REAL_SET)
 
-            ptr = self.domain.start
-            c = [(ptr, self._get_for(ptr))]
+        self.series = series
+        self.period = self.series.domain.length()
 
-            while len(a) > 0 or len(b) > 0:
-                if len(a) > 0 and len(b) > 0:
-                    if a[-1] < b[-1]:
-                        ptr = a.pop()
-                    elif a[-1] > b[-1]:
-                        ptr = b.pop()
-                    else:
-                        a.pop()
-                        ptr = b.pop()
+    def _get_for(self, item):
+        if item < 0:
+            item = -(item // self.period) * self.period + item
+        elif item > self.period:
+            item = item - (item // self.period) * self.period
+        elif item == self.period:
+            item = 0
 
-                    assert ptr >= c[-1][0]
+        return self.series._get_for(self.series.domain.start + item)
 
-                    if ptr > c[-1][0]:
-                        c.append((ptr, self._get_for(ptr)))
-
-                else:
-                    rest = a if len(a) > 0 else b
-                    c.extend((ptr, self._get_for(ptr)) for ptr, v in rest)
-                    break
-
-            return DiscreteSeries(c, self.domain)
-        elif isinstance(self.ser1, DiscreteSeries) or isinstance(self.ser2,
-                                                                DiscreteSeries):
-            dis, nds = (self.ser1, self.ser2) if isinstance(self.ser1, DiscreteSeries) else (self.ser2, self.ser1)
-
-            if dis.data[0][0] != self.domain.start:
-                p = [(self.domain.start, self._get_for(self.domain.start))]
-            else:
-                p = []
-
-            for ptr, v in dis.data:
-                p.append((ptr, self._get_for(ptr)))
-
-            if dis.data[-1][0] != self.domain.stop:
-                dis.data.append((self.domain.stop, self._get_for(ptr)))
-
-            return DiscreteSeries(p, self.domain)
-        else:
-            return self

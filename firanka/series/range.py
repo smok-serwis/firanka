@@ -23,6 +23,9 @@ class Range(object):
     Range of real numbers. Immutable.
     """
 
+    def translate(self, x):
+        return Range(self.start+x, self.stop+x, self.left_inc, self.right_inc)
+
     def __init__(self, *args):
         if len(args) == 1:
             rs, = args
@@ -76,7 +79,7 @@ class Range(object):
     def is_empty(self):
         return (self.start == self.stop) and not (self.left_inc or self.right_inc)
 
-    def __len__(self):
+    def length(self):
         return self.stop - self.start
 
     def __repr__(self):
@@ -131,3 +134,4 @@ class Range(object):
 
 
 EMPTY_RANGE = Range(0, 0, False, False)
+REAL_SET = Range(float('-inf'), float('+inf'), False, False)

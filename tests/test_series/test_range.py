@@ -7,29 +7,26 @@ from firanka.series import Range
 class TestRange(unittest.TestCase):
     def do_intersect(self, a, b, val):
         if type(val) == bool:
-            if bool(Range(a).intersection(b)) != val:
-                self.fail('%s ^ %s != %s' % (Range(a), Range(b), val))
-            if bool(Range(b).intersection(a)) != val:
-                self.fail('%s ^ %s != %s' % (Range(b), Range(a), val))
+            p = Range(a).intersection(b)
+            if p.is_empty() != val:
+                self.fail('%s ^ %s [=> %s] != %s' % (Range(a), Range(b), p, val))
+            p = Range(b).intersection(a)
+            if p.is_empty() != val:
+                self.fail('%s ^ %s [=> %s] != %s' % (Range(b), Range(a), p, val))
         else:
             self.assertEqual(Range(a).intersection(b), Range(val))
             self.assertEqual(Range(b).intersection(a), Range(val))
 
     def test_isempty(self):
-        def tf(r, p):
-            s = Range(r)
-            self.assertEqual(s, r)
-            self.assertEqual(s.is_empty(), not p)
-
-        tf(Range(-1,-1,False,False), False)
-        tf(Range(-1,-1,False,True), True)
+        self.assertTrue(Range(-1,-1,False,False).is_empty())
+        self.assertFalse(Range(-1,-1,False,True).is_empty())
         self.assertEqual(Range(0,0,False,False), Range(2,2,False,False))
 
     def test_intersection(self):
-        self.do_intersect(Range(-10, -1, True, True), '<2;3>', False)
-        self.do_intersect(Range(-10, -1, True, False), '(-1;3>', False)
-        self.do_intersect('<-10;-1)', '<-1;1>', False)
-        self.do_intersect(Range(-10, -1, True, False), '(-1;3>', False)
+        self.do_intersect('<-10;1>', '<2;3>', True)
+        self.do_intersect('<10;1)', '(-1;3>', True)
+        self.do_intersect('<-10;-1)', '<-1;1>', True)
+        self.do_intersect('<-10;-1)', '(-1;3>', True)
         self.do_intersect('<-10;2)', '<1;5>', '<1;2)')
 
     def test_str_and_repr_and_bool(self):

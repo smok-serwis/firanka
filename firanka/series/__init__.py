@@ -4,14 +4,16 @@ import six
 import logging
 
 from .exceptions import OutOfRangeError, EmptyDomainError
-from .range import Range
-from .series import DiscreteSeries, FunctionBasedSeries
+from .range import Range, REAL_SET
+from .series import DiscreteSeries, FunctionBasedSeries, ModuloSeries
 
 
 __all__ = [
+    'REAL_SET',
     'OutOfRangeError',
     'EmptyDomainError',
     'Range',
     'FunctionBasedSeries',
-    'DiscreteSeries'
+    'DiscreteSeries',
+    'ModuloSeries',
 ]
