@@ -14,6 +14,10 @@ class TestRange(unittest.TestCase):
         if bool(Range(b).intersection(a)) != val:
             self.fail('%s ^ %s != %s' % (Range(b), Range(a), val))
 
+    def test_isempty(self):
+        self.assertTrue(Range(-1,-1,False,False).is_empty())
+        self.assertFalse(Range(-1,-1,False,True).is_empty())
+
     def test_intersection(self):
         self.do_intersect(Range(-10, -1, True, True), '<2;3>', False)
         self.do_intersect(Range(-10, -1, True, False), '(-1;3>', False)
