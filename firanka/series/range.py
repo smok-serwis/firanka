@@ -22,29 +22,25 @@ class Range(object):
     """
     Range of real numbers
     """
+    def __from_str(self, rs):
+        if rs[0] not in '<(': raise ValueError('Must start with ( or <')
+        if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
+        if ';' not in rs: raise ValueError('Separator ; required')
+
+        start, stop = rs[1:-1].split(';')
+        start = float(start)
+        stop = float(stop)
+        return float(start), float(stop), rs[0] == '<', rs[-1] == '>'
+
+    def __from_range(self, rs):
+        return rs.start, rs.stop, rs.lend_inclusive, rs.rend_inclusive
+
     def __init__(self, *args):
         if len(args) == 1:
             rs, = args
-            if isinstance(rs, type(self)):
-                start = rs.start
-                stop = rs.stop
-                lend_inclusive = rs.lend_inclusive
-                rend_inclusive = rs.rend_inclusive
-            else:
-                rs, = args
+            args = self.__from_range(rs) if isinstance(rs, type(self)) else self.__from_str(rs)
 
-                if rs[0] not in '<(': raise ValueError('Must start with ( or <')
-                if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
-                if ';' not in rs: raise ValueError('Separator ; required')
-
-                lend_inclusive = rs[0] == '<'
-                rend_inclusive = rs[-1] == '>'
-
-                start, stop = rs[1:-1].split(';')
-                start = float(start)
-                stop = float(stop)
-        else:
-            start, stop, lend_inclusive, rend_inclusive = args
+        start, stop, lend_inclusive, rend_inclusive = args
 
         if lend_inclusive and math.isinf(start):
             raise ValueError('Greater or equal with infinity!')
