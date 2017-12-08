@@ -5,8 +5,10 @@ python:
  - "3.4"
  - "3.5"
  - "pypy"
-
+install:
+ - pip install -r requirements.txt
+ - pip install --force-reinstall "coverage>=4.0,<4.4" codeclimate-test-reporter
 script:
- - python setup.py tests
+ - python setup.py nosetests
 after_success:
  - codeclimate-test-reporter
