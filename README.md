@@ -8,3 +8,5 @@
 [![PyPI](https://img.shields.io/pypi/implementation/firanka.svg)]()
 [![PyPI](https://img.shields.io/pypi/wheel/firanka.svg)]()
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+
+Calculations on real functions
