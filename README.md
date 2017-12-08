@@ -1,0 +1,10 @@
+# firanka
+[![Build Status](https://travis-ci.org/smok-serwis/firanka.svg)](https://travis-ci.org/smok-serwis/firanka)
+[![Test Coverage](https://codeclimate.com/github/smok-serwis/firanka/badges/coverage.svg)](https://codeclimate.com/github/smok-serwis/firanka/coverage)
+[![Code Climate](https://codeclimate.com/github/smok-serwis/firanka/badges/gpa.svg)](https://codeclimate.com/github/smok-serwis/firanka)
+[![Issue Count](https://codeclimate.com/github/smok-serwis/firanka/badges/issue_count.svg)](https://codeclimate.com/github/smok-serwis/firanka)
+[![PyPI version](https://badge.fury.io/py/CoolAMQP.svg)](https://badge.fury.io/py/CoolAMQP)
+[![PyPI](https://img.shields.io/pypi/pyversions/CoolAMQP.svg)]()
+[![PyPI](https://img.shields.io/pypi/implementation/CoolAMQP.svg)]()
+[![PyPI](https://img.shields.io/pypi/wheel/CoolAMQP.svg)]()
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
