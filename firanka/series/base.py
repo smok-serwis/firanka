@@ -6,7 +6,7 @@ import inspect
 from sortedcontainers import SortedList
 
 from firanka.exceptions import NotInDomainError
-from firanka.ranges import Range, EMPTY_SET
+from firanka.intervals import Interval, EMPTY_SET
 
 
 def _has_arguments(fun, n):  # used only in assert clauses
@@ -23,21 +23,21 @@ class Series(object):
     """
 
     def __init__(self, domain, comment=u''):
-        if not isinstance(domain, Range):
-            domain = Range(domain)
+        if not isinstance(domain, Interval):
+            domain = Interval(domain)
         self.domain = domain
         self.comment = comment
 
     def __getitem__(self, item):
         """
         Return a value for given index, or a subslice of this series
-        :param item: a float, or a slice, or a Range
+        :param item: a float, or a slice, or a Interval
         :return: Series instance or a value
         :raises NotInDomainError: index not in domain
         """
-        if isinstance(item, (Range, slice)):
+        if isinstance(item, (Interval, slice)):
             if isinstance(item, slice):
-                item = Range(item)
+                item = Interval(item)
 
             if item not in self.domain:
                 raise NotInDomainError('slicing beyond series domain')
@@ -68,7 +68,7 @@ class Series(object):
         """
         assert _has_arguments(fun, 2), 'Callable to apply needs 2 arguments'
 
-        return AlteredSeries(self, applyfun=fun)
+        return AlteredSeries(self, fun=fun)
 
     def discretize(self, points, domain=None):
         """
@@ -80,7 +80,7 @@ class Series(object):
 
         points = list(sorted(points))
 
-        domain = domain or Range(points[0], points[-1], True, True)
+        domain = domain or Interval(points[0], points[-1], True, True)
 
         if domain not in self.domain:
             raise NotInDomainError('points not inside this series!')
@@ -120,7 +120,7 @@ class DiscreteSeries(Series):
         if len(data) == 0:
             domain = EMPTY_SET
         elif domain is None:
-            domain = Range(data[0][0], data[-1][0], True, True)
+            domain = Interval(data[0][0], data[-1][0], True, True)
 
         self.data = data
         super(DiscreteSeries, self).__init__(domain, *args, **kwargs)
@@ -191,7 +191,19 @@ class DiscreteSeries(Series):
 
         return DiscreteSeries(c, new_domain)
 
+    def join(self, series, fun):
+        if isinstance(series, DiscreteSeries):
+            return self.join_discrete(series, fun)  # same effect
+        else:
+            super(DiscreteSeries, self).join(series, fun)
+
     def join_discrete(self, series, fun):
+        """
+        Very much like join, but it will evaluate only existing discrete points.
+        :param series:
+        :param fun:
+        :return:
+        """
         assert _has_arguments(fun, 3), 'fun must have at least 3 arguments!'
 
         new_domain = self.domain.intersection(series.domain)
@@ -199,21 +211,19 @@ class DiscreteSeries(Series):
         if isinstance(series, DiscreteSeries):
             return self._join_discrete_other_discrete(series, fun)
 
+        def get_both_for_t(t):
+            return fun(t, self._get_for(t), series._get_for(t))
+
+        c = []
         if new_domain.start > self.data[0][0]:
-            c = [(new_domain.start, fun(new_domain.start,
-                                        self._get_for(new_domain.start),
-                                        series._get_for(new_domain.start)))]
-        else:
-            c = []
+            c.append((new_domain.start, get_both_for_t(new_domain.start)))
 
         for k, v in ((k, v) for k, v in self.data if
                      new_domain.start <= k <= new_domain.stop):
             _appendif(c, k, fun(k, v, series._get_for(k)))
 
         if c[-1][0] != new_domain.stop:
-            c.append((new_domain.stop, fun(new_domain.stop,
-                                           self._get_for(new_domain.stop),
-                                           series._get_for(new_domain.stop))))
+            c.append((new_domain.stop, get_both_for_t(new_domain.stop)))
 
         return DiscreteSeries(c, new_domain)
 
@@ -223,16 +233,16 @@ class AlteredSeries(Series):
     Internal use - for applyings, translations and slicing
     """
 
-    def __init__(self, series, domain=None, applyfun=lambda k, v: v, x=0, *args, **kwargs):
+    def __init__(self, series, domain=None, fun=lambda k, v: v, x=0, *args, **kwargs):
         """
         :param series: original series
         :param domain: new domain to use [if sliced]
-        :param applyfun: (index, v) -> newV [if applied]
+        :param fun: (index, v) -> newV [if applied]
         :param x: translation vector [if translated]
         """
         domain = domain or series.domain
         super(AlteredSeries, self).__init__(domain.translate(x), *args, **kwargs)
-        self.fun = applyfun
+        self.fun = fun
         self.series = series
         self.x = x
 

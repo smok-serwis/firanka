@@ -45,7 +45,6 @@ Applying requires a callable(index: float, value: current value) -> value.
 Joining requires a callable(index: float, valueSelf, valueOther: values from self and other table) -> value.
 
 
-
 ### DiscreteSeries
 
 To use a _DiscreteSeries_ you must give it a set of data to work with. These
@@ -138,36 +137,35 @@ isinstance(series, DiscreteSeries)
 By calling `as_series()` you get a new DiscreteSeries instance returned.
 
 
-## Ranges
+## Intervals
 
-Can be imported from _sai.ranges_.
+Can be imported from _sai.intervals_.
 
-Range would have been better called an **interval**. It is a continuous subset
-of the real number line.
+Interval is a continuous subset of the real number line.
 
-You can create Ranges as follows:
+You can create Intervals as follows:
 
 ```python
-Range(-5, 5, True, False) == Range('<-5;5)')
+Interval(-5, 5, True, False) == Interval('<-5;5)')
 ```
 
-For more information [use the source](firanka/ranges.py#L33)
-Range's are immutable and hashable. They can be sliced:
+For more information [use the source](firanka/intervals.py#L33)
+Interval's are immutable and hashable. They can be sliced:
 
 ```python
-Range('<-5;5>')[0:] == Range('<0;5>')
+Interval('<-5;5>')[0:] == Interval('<0;5>')
 ```
 
 Slices work as a both-sides-closed range if both sides are shown!
 
-You can check whether a range contains a point
+You can check whether an interval contains a point
 
 ```python
-5 not in Range('<-1;5)')
+5 not in Interval('<-1;5)')
 ```
 
 Or you can check for strict inclusion
 
 ```python
-Range('<-1;1>') in Range('<-2;2>')
+Interval('<-1;1>') in Interval('<-2;2>')
 ```

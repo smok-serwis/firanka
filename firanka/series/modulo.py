@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import, division
 import math
 
 from .base import Series
-from ..ranges import REAL_SET
+from ..intervals import REAL_SET
 
 
 class ModuloSeries(Series):

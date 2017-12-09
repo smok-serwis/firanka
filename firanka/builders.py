@@ -5,7 +5,7 @@ import copy
 
 from sortedcontainers import SortedList
 
-from .ranges import Range
+from .intervals import Interval
 from .series import DiscreteSeries
 
 """
@@ -34,9 +34,9 @@ class DiscreteSeriesBuilder(object):
 
         if index not in self.domain:
             if index <= self.domain.start:
-                self.domain = Range(index, self.domain.stop, True, self.domain.right_inc)
+                self.domain = Interval(index, self.domain.stop, True, self.domain.right_inc)
             if index >= self.domain.stop:
-                self.domain = Range(self.domain.start, index, self.domain.left_inc, True)
+                self.domain = Interval(self.domain.start, index, self.domain.left_inc, True)
 
         self.new_data[index] = value
 

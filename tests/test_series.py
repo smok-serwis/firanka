@@ -5,7 +5,7 @@ import math
 import unittest
 
 from firanka.exceptions import NotInDomainError
-from firanka.ranges import Range
+from firanka.intervals import Interval
 from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
     LinearInterpolationSeries, Series
 
@@ -42,7 +42,7 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertRaises(NotInDomainError, lambda: s[2.5])
 
         s = DiscreteSeries([[0, 0], [1, 1], [2, 2]],
-                           domain=Range(0, 3, True, True))
+                           domain=Interval(0, 3, True, True))
         self.assertEqual(s[0], 0)
         self.assertEqual(s[0.5], 0)
         self.assertEqual(s[1], 1)
@@ -120,7 +120,7 @@ class TestDiscreteSeries(unittest.TestCase):
         EPTS = [x * x ** 2 for x in PTS]
 
         self.assertEqual(sc.eval_points(PTS), EPTS)
-        self.assertTrue(Range('<0;2)') in sc.domain)
+        self.assertTrue(Interval('<0;2)') in sc.domain)
 
     def test_discretize(self):
         # note the invalid data for covering this domain
