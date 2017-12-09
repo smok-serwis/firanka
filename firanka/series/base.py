@@ -60,7 +60,7 @@ class Series(object):
         :param fun: callable/1 => 1
         :return: Series instance
         """
-        return AppliedSeries(self, lambda k, v: fun(v))
+        return AppliedAndTranslatedSeries(self, applyfun=lambda k, v: fun(v))
 
     def apply_with_indices(self, fun):
         """
@@ -68,7 +68,7 @@ class Series(object):
         :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
-        return AppliedSeries(self, fun)
+        return AppliedAndTranslatedSeries(self, applyfun=fun)
 
     def discretize(self, points, domain=None):
         """
@@ -103,48 +103,7 @@ class Series(object):
         :param x: a float
         :return: new Series instance
         """
-        return TranslatedSeries(self, x)
-
-
-class AppliedSeries(Series):
-    def __init__(self, series, applyfun, *args, **kwargs):
-        """:type applyfun: callable(float, v) -> any"""
-        super(AppliedSeries, self).__init__(series.domain, *args, **kwargs)
-        self.fun = applyfun
-        self.series = series
-
-    def _get_for(self, item):
-        return self.fun(item, self.series._get_for(item))
-
-
-class TranslatedSeries(Series):
-    def __init__(self, series, x, *args, **kwargs):
-        super(TranslatedSeries, self).__init__(self.domain.translate(x), *args,
-                                               **kwargs)
-        self.series = series
-        self.x = x
-
-    def _get_for(self, item):
-        return self.series._get_for(item + self.x)
-
-
-class SlicedSeries(Series):
-    def __init__(self, parent, domain, *args, **kwargs):
-        super(SlicedSeries, self).__init__(domain, *args, **kwargs)
-        self.parent = parent
-
-    def _get_for(self, item):
-        return self.parent._get_for(item)
-
-
-def _appendif(lst, ptr, v):
-    if len(lst) > 0:
-        assert lst[-1][0] <= ptr
-        if lst[-1][0] == ptr:
-            return  # same ptr as before? Not required.
-        if lst[-1][1] == v:
-            return  # same value as before? Redundant
-    lst.append((ptr, v))
+        return AppliedAndTranslatedSeries(self, x=x)
 
 
 class DiscreteSeries(Series):
@@ -250,17 +209,35 @@ class DiscreteSeries(Series):
         return DiscreteSeries(nd, self.domain)
 
 
-class FunctionSeries(Series):
-    """
-    Series with values defined by a function
-    """
-
-    def __init__(self, fun, domain, *args, **kwargs):
-        super(FunctionSeries, self).__init__(domain, *args, **kwargs)
-        self.fun = fun
+class AppliedAndTranslatedSeries(Series):
+    def __init__(self, series, applyfun=lambda k,v: v, x=0, *args, **kwargs):
+        """:type applyfun: callable(float, v) -> any"""
+        super(AppliedAndTranslatedSeries, self).__init__(series.domain.translate(x), *args, **kwargs)
+        self.fun = applyfun
+        self.series = series
+        self.x = x
 
     def _get_for(self, item):
-        return self.fun(item)
+        return self.fun(item, self.series._get_for(item + self.x))
+
+
+class SlicedSeries(Series):
+    def __init__(self, parent, domain, *args, **kwargs):
+        super(SlicedSeries, self).__init__(domain, *args, **kwargs)
+        self.parent = parent
+
+    def _get_for(self, item):
+        return self.parent._get_for(item)
+
+
+def _appendif(lst, ptr, v):
+    if len(lst) > 0:
+        assert lst[-1][0] <= ptr
+        if lst[-1][0] == ptr:
+            return  # same ptr as before? Not required.
+        if lst[-1][1] == v:
+            return  # same value as before? Redundant
+    lst.append((ptr, v))
 
 
 class JoinedSeries(Series):
