@@ -7,12 +7,25 @@ import unittest
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range
 from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
-    LinearInterpolationSeries
+    LinearInterpolationSeries, Series
 
 NOOP = lambda x: x
 
+HUGE_IDENTITY = FunctionSeries(NOOP, '(-inf;inf)')
+
+class TestBase(unittest.TestCase):
+    def test_abstract(self):
+        self.assertRaises(NotImplementedError, lambda: Series('<-1;1>')[0])
+
 
 class TestDiscreteSeries(unittest.TestCase):
+
+    def test_redundancy_skip(self):
+        a = DiscreteSeries([(0,0), (1,0), (2,0)], '<0;5>')
+        b = DiscreteSeries([(0,0), (1,0)], '<0;5>')
+
+        a.join(b, lambda i,x,y: x+y)
+
     def test_uncov(self):
         self.assertRaises(ValueError,
                           lambda: DiscreteSeries([[0, 0], [1, 1], [2, 2]],
@@ -49,6 +62,11 @@ class TestDiscreteSeries(unittest.TestCase):
 
         self.assertRaises(NotInDomainError, lambda: series[-1:2])
 
+    def test_translate(self):
+        sp = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).translate(1)
+        self.assertEqual(sp[1.5], 0)
+        self.assertEqual(sp[2.5], 1)
+
     def test_slice(self):
         series = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
 
@@ -65,7 +83,7 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
         sb = DiscreteSeries([[0, 1], [1, 2], [2, 3]])
 
-        sc = sa.join_discrete(sb, lambda a, b: a + b)
+        sc = sa.join_discrete(sb, lambda i, a, b: a + b)
         self.assertIsInstance(sc, DiscreteSeries)
         self.assertEqual(sc.eval_points([0, 1, 2]), [1, 3, 5])
         self.assertEqual(sc.data, [(0, 1), (1, 3), (2, 5)])
@@ -74,17 +92,21 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
         sb = FunctionSeries(NOOP, '<0;2>')
 
-        sc = sa.join_discrete(sb, lambda a, b: a + b)
+        sc = sa.join_discrete(sb, lambda i, a, b: a + b)
         self.assertEqual(sc.eval_points([0, 1, 2]), [0, 2, 4])
 
         self.assertIsInstance(sc, DiscreteSeries)
         self.assertEqual(sc.data, [(0, 0), (1, 2), (2, 4)])
 
-    def test_apply(self):
-        sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply(lambda x: x + 1)
-        self.assertEquals(sa.data, [(0, 1), (1, 2), (2, 3)])
+    def test_eval2i(self):
+        sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
+        sc = sa.join_discrete(HUGE_IDENTITY, lambda i, a, b: i)
+        self.assertEqual(sc.eval_points([0, 1, 2]), [0, 1, 2])
+        self.assertIsInstance(sc, DiscreteSeries)
+        self.assertEqual(sc.data, [(0, 0), (1, 1), (2, 2)])
 
-        sb = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply_with_indices(
+    def test_apply(self):
+        sb = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply(
             lambda k, v: k)
         self.assertEquals(sb.data, [(0, 0), (1, 1), (2, 2)])
 
@@ -92,7 +114,7 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = FunctionSeries(lambda x: x ** 2, '<-10;10)')
         sb = FunctionSeries(NOOP, '<0;2)')
 
-        sc = sa.join(sb, lambda a, b: a * b)
+        sc = sa.join(sb, lambda i, a, b: a * b)
 
         PTS = [0, 1, 1.9]
         EPTS = [x * x ** 2 for x in PTS]
@@ -105,6 +127,11 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertRaises(ValueError, lambda: FunctionSeries(lambda x: x ** 2,
                                                              '<-10;10)').discretize(
             [0, 1, 2, 3, 4, 5], '(-1;6)'))
+
+        self.assertRaises(NotInDomainError, lambda: FunctionSeries(lambda x: x ** 2,
+                                                             '<-10;10)').discretize(
+            [-100, 0, 1, 2, 3, 4, 5], '(-1;6)'))
+
 
         PTS = [-1, 0, 1, 2, 3, 4, 5]
         sa = FunctionSeries(lambda x: x ** 2, '<-10;10)').discretize(PTS,
@@ -135,13 +162,7 @@ class TestFunctionSeries(unittest.TestCase):
 
     def test_apply(self):
         PTS = [-1, -2, -3, 1, 2, 3]
-        series = FunctionSeries(NOOP, '<-5;5>').apply(lambda x: x * 2)
-
-        self.assertEqual(series.eval_points(PTS), [x * 2 for x in PTS])
-
-        PTS = [-1, -2, -3, 1, 2, 3]
-        series = FunctionSeries(NOOP, '<-5;5>').apply_with_indices(
-            lambda k, x: k)
+        series = FunctionSeries(NOOP, '<-5;5>').apply(lambda k, x: k)
 
         self.assertEqual(series.eval_points(PTS), [x for x in PTS])
 
@@ -151,6 +172,7 @@ class TestFunctionSeries(unittest.TestCase):
 
         self.assertRaises(ValueError,
                           lambda: dirs.join_discrete(logs, lambda x, y: x + y))
+
 
 
 class TestModuloSeries(unittest.TestCase):

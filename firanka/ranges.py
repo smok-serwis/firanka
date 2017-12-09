@@ -29,8 +29,43 @@ class Range(object):
     """
 
     def translate(self, x):
-        return Range(self.start + x, self.stop + x, self.left_inc,
-                     self.right_inc)
+        if x == 0:
+            return self
+        else:
+            return Range(self.start + x, self.stop + x, self.left_inc,
+                         self.right_inc)
+
+    def __fromslice(self, rs):
+        start = float('-inf') if rs.start is None else rs.start
+        stop = float('+inf') if rs.stop is None else rs.stop
+        return start, stop, not math.isinf(start), not math.isinf(stop)
+
+    def __fromrange(self, rs):
+        return rs.start, rs.stop, rs.left_inc, rs.right_inc
+
+    def __fromstr(self, rs):
+        if rs[0] not in '<(': raise ValueError(
+            'Must start with ( or <')
+        if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
+        if ';' not in rs: raise ValueError('Separator ; required')
+
+        start, stop = rs[1:-1].split(';')
+        return float(start), float(stop), rs[0] == '<', rs[-1] == '>'
+
+    def __getargs(self, args):
+        if len(args) == 1:
+            rs, = args
+            if isinstance(rs, Range):
+                args = self.__fromrange(rs)
+            elif isinstance(rs, slice):
+                args = self.__fromslice(rs)
+            else:
+                args = self.__fromstr(rs)
+        elif len(args) == 2:
+            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(
+                args[1])
+
+        return args
 
     def __init__(self, *args):
         """
@@ -43,28 +78,10 @@ class Range(object):
 
         :param args:
         """
-        if len(args) == 1:
-            rs, = args
-            if isinstance(rs, type(self)):
-                args = rs.start, rs.stop, rs.left_inc, rs.right_inc
-            elif isinstance(rs, slice):
-                start = rs.start if rs.start is not None else float('-inf')
-                stop = rs.stop if rs.stop is not None else float('+inf')
-                args = start, stop, not math.isinf(start), not math.isinf(stop)
-            else:
-                if rs[0] not in '<(': raise ValueError(
-                    'Must start with ( or <')
-                if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
-                if ';' not in rs: raise ValueError('Separator ; required')
+        args = self.__getargs(args)
 
-                start, stop = rs[1:-1].split(';')
-                args = float(start), float(stop), rs[0] == '<', rs[-1] == '>'
-
-        elif len(args) == 2:
-            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(
-                args[1])
-
-        q = lambda a, b, args: args[a] and math.isinf(args[b])
+        def q(a, b, args):
+            return args[a] and math.isinf(args[b])
 
         if q(2, 0, args) or q(3, 1, args):
             raise ValueError('Set with sharp closing but infinity set')
@@ -80,8 +97,7 @@ class Range(object):
 
         if isinstance(x, Range):
             if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
-                    or ((x.stop == self.stop) and (
-                                x.right_inc ^ self.right_inc)):
+                or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
                 return False
 
             return (x.start >= self.start) and (x.stop <= self.stop)
