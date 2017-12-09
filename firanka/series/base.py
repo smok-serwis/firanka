@@ -9,7 +9,8 @@ from firanka.ranges import Range, EMPTY_SET
 from sortedcontainers import SortedList
 
 
-def has_arguments(fun, n):
+def _has_arguments(fun, n):
+    assert hasattr(fun, '__call__'), 'function is not callable!'
     return len(inspect.getargspec(fun).args) == n
 
 
@@ -65,7 +66,7 @@ class Series(object):
         :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
-        assert has_arguments(fun, 2), 'Callable to apply needs 2 arguments'
+        assert _has_arguments(fun, 2), 'Callable to apply needs 2 arguments'
 
         return AlteredSeries(self, applyfun=fun)
 
@@ -94,7 +95,7 @@ class Series(object):
         :param fun: callable(t: float, v1: any, v2: any) => value
         :return: new Series instance
         """
-        assert has_arguments(fun, 3), 'Callable to join needs 3 arguments'
+        assert _has_arguments(fun, 3), 'Callable to join needs 3 arguments'
 
         return JoinedSeries(self, series, fun)
 
@@ -250,7 +251,7 @@ class JoinedSeries(Series):
 
     def __init__(self, ser1, ser2, op, *args, **kwargs):
         """:type op: callable(time: float, v1, v2: any) -> v"""
-        assert has_arguments(op, 3), 'op must have 3 arguments'
+        assert _has_arguments(op, 3), 'op must have 3 arguments'
 
         super(JoinedSeries, self).__init__(ser1.domain.intersection(ser2.domain), *args, **kwargs)
         self.ser1 = ser1
