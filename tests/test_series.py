@@ -13,18 +13,18 @@ NOOP = lambda x: x
 
 HUGE_IDENTITY = FunctionSeries(NOOP, '(-inf;inf)')
 
+
 class TestBase(unittest.TestCase):
     def test_abstract(self):
         self.assertRaises(NotImplementedError, lambda: Series('<-1;1>')[0])
 
 
 class TestDiscreteSeries(unittest.TestCase):
-
     def test_redundancy_skip(self):
-        a = DiscreteSeries([(0,0), (1,0), (2,0)], '<0;5>')
-        b = DiscreteSeries([(0,0), (1,0)], '<0;5>')
+        a = DiscreteSeries([(0, 0), (1, 0), (2, 0)], '<0;5>')
+        b = DiscreteSeries([(0, 0), (1, 0)], '<0;5>')
 
-        a.join(b, lambda i,x,y: x+y)
+        a.join(b, lambda i, x, y: x + y)
 
     def test_uncov(self):
         self.assertRaises(ValueError,
@@ -129,9 +129,8 @@ class TestDiscreteSeries(unittest.TestCase):
             [0, 1, 2, 3, 4, 5], '(-1;6)'))
 
         self.assertRaises(NotInDomainError, lambda: FunctionSeries(lambda x: x ** 2,
-                                                             '<-10;10)').discretize(
+                                                                   '<-10;10)').discretize(
             [-100, 0, 1, 2, 3, 4, 5], '(-1;6)'))
-
 
         PTS = [-1, 0, 1, 2, 3, 4, 5]
         sa = FunctionSeries(lambda x: x ** 2, '<-10;10)').discretize(PTS,
@@ -166,13 +165,21 @@ class TestFunctionSeries(unittest.TestCase):
 
         self.assertEqual(series.eval_points(PTS), [x for x in PTS])
 
+    def test_apply_wild(self):
+        def dzika(k, x, a=5, *args, **kwargs):
+            return k
+
+        PTS = [-1, -2, -3, 1, 2, 3]
+        series = FunctionSeries(NOOP, '<-5;5>').apply(dzika)
+
+        self.assertEqual(series.eval_points(PTS), [x for x in PTS])
+
     def test_domain_sensitivity(self):
         logs = FunctionSeries(math.log, '(0;5>')
         dirs = DiscreteSeries([(0, 1), (1, 2), (3, 4)], '<0;5>')
 
         self.assertRaises(ValueError,
-                          lambda: dirs.join_discrete(logs, lambda x, y: x + y))
-
+                          lambda: dirs.join_discrete(logs, lambda i, x, y: x + y))
 
 
 class TestModuloSeries(unittest.TestCase):
@@ -198,16 +205,16 @@ class TestModuloSeries(unittest.TestCase):
 
         self.assertEqual(series.period, 3.0)
 
-        self.assertEqual(series.eval_points([-1,0,1]), [1,2,3])
+        self.assertEqual(series.eval_points([-1, 0, 1]), [1, 2, 3])
 
-        self.assertEqual(series.eval_points([-5,-4,-3,-2,-1,0,1,2,3,4,5]),
-                                            [ 3, 1, 2, 3, 1,2,3,1,2,3,1])
+        self.assertEqual(series.eval_points([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]),
+                         [3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1])
 
     def test_comp_discrete(self):
         ser1 = ModuloSeries(FunctionSeries(lambda x: x ** 2, '<0;3)'))
         ser2 = FunctionSeries(NOOP, '<0;3)')
 
-        ser3 = ser1.join(ser2, lambda x, y: x * y)
+        ser3 = ser1.join(ser2, lambda i, x, y: x * y)
 
 
 class TestLinearInterpolation(unittest.TestCase):

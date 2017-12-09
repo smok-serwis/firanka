@@ -38,6 +38,14 @@ Series are immutable, but non-hashable.
 Read the source code of the [base class](firanka/series/series.py#L11) to get
 to know more about series operations.
 
+
+### Applying and joining
+
+Applying requires a callable(index: float, value: current value) -> value.
+Joining requires a callable(index: float, valueSelf, valueOther: values from self and other table) -> value.
+
+
+
 ### DiscreteSeries
 
 To use a _DiscreteSeries_ you must give it a set of data to work with. These
@@ -116,6 +124,20 @@ any other discrete series would be.
 Sometimes you just need to update a DiscreteSeries, or to blang a brand new one. This little fella
 will help you out.
 
+You can pass a DiscreteSeries to build on or start from stratch:
+```python
+kb = DiscreteSeriesBuilder(series)
+kb = DiscreteSeriesBuilder()
+
+kb.put(1,2)
+
+series = kb.as_series()
+isinstance(series, DiscreteSeries)
+```
+
+By calling `as_series()` you get a new DiscreteSeries instance returned.
+
+
 ## Ranges
 
 Can be imported from _sai.ranges_.
@@ -149,9 +171,3 @@ Or you can check for strict inclusion
 ```python
 Range('<-1;1>') in Range('<-2;2>')
 ```
-
-## TimeProviders
-
-**EXPERIMENTAL**
-
-Can be imported from _sai.timeproviders_.

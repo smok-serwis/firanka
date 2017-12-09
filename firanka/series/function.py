@@ -1,7 +1,5 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
-import logging
 
 from .base import Series
 
@@ -17,6 +15,3 @@ class FunctionSeries(Series):
 
     def _get_for(self, item):
         return self.fun(item)
-
-
-

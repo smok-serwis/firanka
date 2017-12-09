@@ -1,11 +1,17 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 
-import six
+import inspect
+
+from sortedcontainers import SortedList
 
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range, EMPTY_SET
-from sortedcontainers import SortedList
+
+
+def _has_arguments(fun, n):  # used only in assert clauses
+    assert hasattr(fun, '__call__'), 'function is not callable!'
+    return len(inspect.getargspec(fun).args) >= n
 
 
 class Series(object):
@@ -60,6 +66,8 @@ class Series(object):
         :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
+        assert _has_arguments(fun, 2), 'Callable to apply needs 2 arguments'
+
         return AlteredSeries(self, applyfun=fun)
 
     def discretize(self, points, domain=None):
@@ -87,6 +95,8 @@ class Series(object):
         :param fun: callable(t: float, v1: any, v2: any) => value
         :return: new Series instance
         """
+        assert _has_arguments(fun, 3), 'Callable to join needs 3 arguments'
+
         return JoinedSeries(self, series, fun)
 
     def translate(self, x):
@@ -121,6 +131,8 @@ class DiscreteSeries(Series):
                     'some domain space is not covered by definition!')
 
     def apply(self, fun):
+        assert _has_arguments(fun, 2), 'fun must have at least 2 arguments'
+
         return DiscreteSeries([(k, fun(k, v)) for k, v in self.data],
                               self.domain)
 
@@ -164,10 +176,12 @@ class DiscreteSeries(Series):
 
         if len(a) > 0 or len(b) > 0:
             if len(a) > 0:
+                assert len(b) == 0
                 rest = a
                 static_v = series._get_for(ptr)
                 op = lambda ptr, me, const: fun(ptr, me, const)
             else:
+                assert len(a) == 0
                 rest = b
                 static_v = self._get_for(ptr)
                 op = lambda ptr, me, const: fun(ptr, const, me)
@@ -177,8 +191,9 @@ class DiscreteSeries(Series):
 
         return DiscreteSeries(c, new_domain)
 
-
     def join_discrete(self, series, fun):
+        assert _has_arguments(fun, 3), 'fun must have at least 3 arguments!'
+
         new_domain = self.domain.intersection(series.domain)
 
         if isinstance(series, DiscreteSeries):
@@ -207,7 +222,8 @@ class AlteredSeries(Series):
     """
     Internal use - for applyings, translations and slicing
     """
-    def __init__(self, series, domain=None, applyfun=lambda k,v: v, x=0, *args, **kwargs):
+
+    def __init__(self, series, domain=None, applyfun=lambda k, v: v, x=0, *args, **kwargs):
         """
         :param series: original series
         :param domain: new domain to use [if sliced]
@@ -241,6 +257,8 @@ class JoinedSeries(Series):
 
     def __init__(self, ser1, ser2, op, *args, **kwargs):
         """:type op: callable(time: float, v1, v2: any) -> v"""
+        assert _has_arguments(op, 3), 'op must have 3 arguments'
+
         super(JoinedSeries, self).__init__(ser1.domain.intersection(ser2.domain), *args, **kwargs)
         self.ser1 = ser1
         self.ser2 = ser2

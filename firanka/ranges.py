@@ -1,7 +1,6 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 
-import functools
 import math
 
 import six
@@ -14,7 +13,7 @@ __all__ = [
 
 
 def _pre_range(fun):
-    @functools.wraps(fun)
+    @six.wraps(fun)
     def inner(self, arg, *args, **kwargs):
         if not isinstance(arg, Range):
             arg = Range(arg)
@@ -97,7 +96,7 @@ class Range(object):
 
         if isinstance(x, Range):
             if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
-                or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
+                    or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
                 return False
 
             return (x.start >= self.start) and (x.stop <= self.stop)
