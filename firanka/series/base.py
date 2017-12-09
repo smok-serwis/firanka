@@ -2,10 +2,15 @@
 from __future__ import print_function, absolute_import, division
 
 import six
+import inspect
 
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range, EMPTY_SET
 from sortedcontainers import SortedList
+
+
+def has_arguments(fun, n):
+    return len(inspect.getargspec(fun).args) == n
 
 
 class Series(object):
@@ -60,6 +65,8 @@ class Series(object):
         :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
+        assert has_arguments(fun, 2), 'Callable to apply needs 2 arguments'
+
         return AlteredSeries(self, applyfun=fun)
 
     def discretize(self, points, domain=None):
@@ -87,6 +94,8 @@ class Series(object):
         :param fun: callable(t: float, v1: any, v2: any) => value
         :return: new Series instance
         """
+        assert has_arguments(fun, 3), 'Callable to join needs 3 arguments'
+
         return JoinedSeries(self, series, fun)
 
     def translate(self, x):
@@ -241,6 +250,8 @@ class JoinedSeries(Series):
 
     def __init__(self, ser1, ser2, op, *args, **kwargs):
         """:type op: callable(time: float, v1, v2: any) -> v"""
+        assert has_arguments(op, 3), 'op must have 3 arguments'
+
         super(JoinedSeries, self).__init__(ser1.domain.intersection(ser2.domain), *args, **kwargs)
         self.ser1 = ser1
         self.ser2 = ser2

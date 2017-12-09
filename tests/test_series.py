@@ -207,7 +207,7 @@ class TestModuloSeries(unittest.TestCase):
         ser1 = ModuloSeries(FunctionSeries(lambda x: x ** 2, '<0;3)'))
         ser2 = FunctionSeries(NOOP, '<0;3)')
 
-        ser3 = ser1.join(ser2, lambda x, y: x * y)
+        ser3 = ser1.join(ser2, lambda i, x, y: x * y)
 
 
 class TestLinearInterpolation(unittest.TestCase):
