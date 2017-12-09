@@ -2,8 +2,7 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 import six
-import functools
-import itertools
+import math
 
 from .range import Range, REAL_SET, EMPTY_RANGE
 from .exceptions import NotInDomainError
@@ -153,7 +152,6 @@ class DiscreteSeries(Series):
             if self.domain.start < data[0][0]:
                 raise ValueError('some domain space is not covered by definition!')
 
-
     def apply(self, fun):
         return DiscreteSeries([(k, fun(v)) for k, v in self.data], self.domain)
 
@@ -265,6 +263,11 @@ class JoinedSeries(Series):
 class ModuloSeries(Series):
 
     def __init__(self, series):
+        """
+        Construct a modulo series
+        :param series: base series to use
+        :raise ValueError: invalid domain length
+        """
         super(ModuloSeries, self).__init__(REAL_SET)
 
         self.series = series
@@ -272,6 +275,8 @@ class ModuloSeries(Series):
 
         if self.period == 0:
             raise ValueError('Modulo series cannot have a period of 0')
+        elif math.isinf(self.period):
+            raise ValueError('Modulo series cannot have an infinite period')
 
     def _get_for(self, item):
         if item < 0:

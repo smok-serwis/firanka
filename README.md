@@ -30,6 +30,9 @@ slice them and so on.
 
 ## Series
 
+Can be imported from _sai.series_. A generic abstract superclass for series - 
+`Series` can be imported for checking if given object is a series.
+
 ### DiscreteSeries
 
 To use a _DiscreteSeries_ you must give it a set of data to work with. These
@@ -57,6 +60,17 @@ fs[6] == 6
 Although you can't specify a domain where it would be impossible to compute the value.
 (ie. starting at smaller than zero). Doing so will throw a _ValueError_.
 
+Note that when using `join_discrete()` sometimes other series might get calls 
+from beyond their domain. This can be seen for example here:
+
+```python
+logs = FunctionSeries(math.log, '(0;5>')
+dirs = DiscreteSeries([(0,1)], '<0;5>')
+
+# Raises ValueError due to math.log being called with 0
+dirs.join_discrete(logs, lambda x, y: x+y)   
+```
+
 ### FunctionSeries
 
 Using _FunctionSeries_ is straightforward. Just give them a callable and
@@ -66,11 +80,22 @@ a domain:
 fs = FunctionSeries(lambda x: x**2, '<-2;2>')
 ```
 
-## Ranges
+### ModuloSeries
+
+_ModuloSeries_ allow you to wrap a finite series in repetition.
 
 ```python
-from firanka.series import Range
+fs = ModuloSeries(someOtherSeries)
 ```
+
+By definition, _ModuloSeries_ has the domain of all real numbers.
+
+Note that someOtherSeries's domain length must be non-zero and finite. Otherwise
+_ValueError_ will be thrown.
+
+## Ranges
+
+Can be imported from _sai.series_.
 
 Range would have been better called an **interval**. It is a continuous subset
 of the real number line.

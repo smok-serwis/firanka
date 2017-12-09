@@ -1,9 +1,11 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 import six
+import math
 import unittest
 from firanka.series import DiscreteSeries, FunctionSeries, Range, ModuloSeries, NotInDomainError
 
+NOOP = lambda x: x
 
 class TestDiscreteSeries(unittest.TestCase):
 
@@ -63,7 +65,7 @@ class TestDiscreteSeries(unittest.TestCase):
 
     def test_eval2(self):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
-        sb = FunctionSeries(lambda x: x, '<0;2>')
+        sb = FunctionSeries(NOOP, '<0;2>')
 
         sc = sa.join_discrete(sb, lambda a, b: a+b)
         self.assertEqual(sc.eval_points([0,1,2]), [0,2,4])
@@ -77,7 +79,7 @@ class TestDiscreteSeries(unittest.TestCase):
 
     def test_eval3(self):
         sa = FunctionSeries(lambda x: x**2, '<-10;10)')
-        sb = FunctionSeries(lambda x: x, '<0;2)')
+        sb = FunctionSeries(NOOP, '<0;2)')
 
         sc = sa.join(sb, lambda a, b: a*b)
 
@@ -104,9 +106,10 @@ class TestDiscreteSeries(unittest.TestCase):
         empty = FunctionSeries(lambda x: x**2, '<-10;10)').discretize([])
         self.assertTrue(empty.domain.is_empty())
 
+
 class TestFunctionSeries(unittest.TestCase):
     def test_slice(self):
-        series = FunctionSeries(lambda x: x, '<0;2>')
+        series = FunctionSeries(NOOP, '<0;2>')
         sp = series[0.5:1.5]
 
         self.assertEqual(sp[0.5], 0.5)
@@ -118,11 +121,23 @@ class TestFunctionSeries(unittest.TestCase):
 
     def test_apply(self):
         PTS = [-1,-2,-3,1,2,3]
-        series = FunctionSeries(lambda x: x, '<-5;5>').apply(lambda x: x*2)
+        series = FunctionSeries(NOOP, '<-5;5>').apply(lambda x: x*2)
 
         self.assertEqual(series.eval_points(PTS), [x*2 for x in PTS])
 
+    def test_domain_sensitivity(self):
+        logs = FunctionSeries(math.log, '(0;5>')
+        dirs = DiscreteSeries([(0,1),(1,2),(3,4)], '<0;5>')
+
+        self.assertRaises(ValueError, lambda: dirs.join_discrete(logs, lambda x, y: x+y))
+
 class TestModuloSeries(unittest.TestCase):
+
+    def test_exceptions(self):
+        self.assertRaises(ValueError, lambda: ModuloSeries(FunctionSeries(NOOP, '(-inf; 0>')))
+        self.assertRaises(ValueError, lambda: ModuloSeries(FunctionSeries(NOOP, '(-inf; inf)')))
+        self.assertRaises(ValueError, lambda: ModuloSeries(FunctionSeries(NOOP, '<0; 0>')))
+
     def test_base(self):
         series = ModuloSeries(DiscreteSeries([(0,1),(1,2),(2,3)], '<0;3)'))
 
@@ -133,7 +148,7 @@ class TestModuloSeries(unittest.TestCase):
 
     def test_comp_discrete(self):
         ser1 = ModuloSeries(FunctionSeries(lambda x: x**2, '<0;3)'))
-        ser2 = FunctionSeries(lambda x: x, '<0;3)')
+        ser2 = FunctionSeries(NOOP, '<0;3)')
 
         ser3 = ser1.join(ser2, lambda x, y: x*y)
 
