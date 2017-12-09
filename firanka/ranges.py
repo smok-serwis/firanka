@@ -79,7 +79,10 @@ class Range(object):
         :param args:
         """
         args = self.__getargs(args)
-        q = lambda a, b, args: args[a] and math.isinf(args[b])
+
+        def q(a, b, args):
+            return args[a] and math.isinf(args[b])
+
         if q(2, 0, args) or q(3, 1, args):
             raise ValueError('Set with sharp closing but infinity set')
 
