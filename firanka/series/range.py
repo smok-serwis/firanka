@@ -32,7 +32,9 @@ class Range(object):
             if isinstance(rs, type(self)):
                 args = rs.start, rs.stop, rs.left_inc, rs.right_inc
             elif isinstance(rs, slice):
-                args = rs.start, rs.stop, True, True
+                start = rs.start if rs.start is not None else float('-inf')
+                stop = rs.stop if rs.stop is not None else float('+inf')
+                args = start, stop, not math.isinf(start), not math.isinf(stop)
             else:
                 if rs[0] not in '<(': raise ValueError('Must start with ( or <')
                 if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
@@ -83,6 +85,12 @@ class Range(object):
 
     def __repr__(self):
         return 'Range(%s, %s, %s, %s)' % (repr(self.start), repr(self.stop), repr(self.left_inc), repr(self.right_inc))
+
+    def __getitem__(self, item):
+        if not isinstance(item, slice):
+            raise ValueError('must be a slice')
+
+        return self.intersection(Range(item))
 
     def __str__(self):
         return '%s%s;%s%s' % (

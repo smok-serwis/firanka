@@ -5,7 +5,7 @@ import logging
 
 from .exceptions import NotInDomainError, FirankaError
 from .range import Range, REAL_SET
-from .series import DiscreteSeries, FunctionBasedSeries, ModuloSeries, Series
+from .series import DiscreteSeries, FunctionSeries, ModuloSeries, Series
 
 
 __all__ = [
@@ -13,7 +13,7 @@ __all__ = [
     'FirankaError',
     'NotInDomainError',
     'Range',
-    'FunctionBasedSeries',
+    'FunctionSeries',
     'DiscreteSeries',
     'ModuloSeries',
     'Series',

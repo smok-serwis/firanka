@@ -17,6 +17,9 @@ class TestRange(unittest.TestCase):
             self.assertEqual(Range(a).intersection(b), Range(val))
             self.assertEqual(Range(b).intersection(a), Range(val))
 
+    def test_slicing(self):
+        self.assertTrue(Range('<-5;5>')[0:] == Range('<0;5>'))
+
     def test_isempty(self):
         self.assertTrue(Range(-1,-1,False,False).is_empty())
         self.assertFalse(Range(-1,-1,False,True).is_empty())

@@ -2,7 +2,7 @@
 from __future__ import print_function, absolute_import, division
 import six
 import unittest
-from firanka.series import DiscreteSeries, FunctionBasedSeries, Range, ModuloSeries, NotInDomainError
+from firanka.series import DiscreteSeries, FunctionSeries, Range, ModuloSeries, NotInDomainError
 
 
 class TestDiscreteSeries(unittest.TestCase):
@@ -60,7 +60,7 @@ class TestDiscreteSeries(unittest.TestCase):
 
     def test_eval2(self):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
-        sb = FunctionBasedSeries(lambda x: x, '<0;2>')
+        sb = FunctionSeries(lambda x: x, '<0;2>')
 
         sc = sa.join_discrete(sb, lambda a, b: a+b)
         self.assertEqual(sc.eval_points([0,1,2]), [0,2,4])
@@ -73,8 +73,8 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertEquals(sa.data, [(0,1),(1,2),(2,3)])
 
     def test_eval3(self):
-        sa = FunctionBasedSeries(lambda x: x**2, '<-10;10)')
-        sb = FunctionBasedSeries(lambda x: x, '<0;2)')
+        sa = FunctionSeries(lambda x: x**2, '<-10;10)')
+        sb = FunctionSeries(lambda x: x, '<0;2)')
 
         sc = sa.join(sb, lambda a, b: a*b)
 
@@ -86,20 +86,20 @@ class TestDiscreteSeries(unittest.TestCase):
 
     def test_discretize(self):
         PTS = [0,1,2,3,4,5]
-        sa = FunctionBasedSeries(lambda x: x**2, '<-10;10)').discretize(PTS, '(-1;6)')
+        sa = FunctionSeries(lambda x: x**2, '<-10;10)').discretize(PTS, '(-1;6)')
         self.assertIsInstance(sa, DiscreteSeries)
         self.assertEqual(sa.data, [(i, i**2) for i in PTS])
 
-        sa = FunctionBasedSeries(lambda x: x**2, '<-10;10)').discretize(PTS)
+        sa = FunctionSeries(lambda x: x**2, '<-10;10)').discretize(PTS)
         self.assertIsInstance(sa, DiscreteSeries)
         self.assertEqual(sa.data, [(i, i**2) for i in PTS])
 
-        empty = FunctionBasedSeries(lambda x: x**2, '<-10;10)').discretize([])
+        empty = FunctionSeries(lambda x: x**2, '<-10;10)').discretize([])
         self.assertTrue(empty.domain.is_empty())
 
-class TestFunctionBasedSeries(unittest.TestCase):
+class TestFunctionSeries(unittest.TestCase):
     def test_slice(self):
-        series = FunctionBasedSeries(lambda x: x, '<0;2>')
+        series = FunctionSeries(lambda x: x, '<0;2>')
         sp = series[0.5:1.5]
 
         self.assertEqual(sp[0.5], 0.5)
@@ -111,7 +111,7 @@ class TestFunctionBasedSeries(unittest.TestCase):
 
     def test_apply(self):
         PTS = [-1,-2,-3,1,2,3]
-        series = FunctionBasedSeries(lambda x: x, '<-5;5>').apply(lambda x: x*2)
+        series = FunctionSeries(lambda x: x, '<-5;5>').apply(lambda x: x*2)
 
         self.assertEqual(series.eval_points(PTS), [x*2 for x in PTS])
 
@@ -125,8 +125,8 @@ class TestModuloSeries(unittest.TestCase):
         self.assertEquals(series[-1], 3)
 
     def test_comp_discrete(self):
-        ser1 = ModuloSeries(FunctionBasedSeries(lambda x: x**2, '<0;3)'))
-        ser2 = FunctionBasedSeries(lambda x: x, '<0;3)')
+        ser1 = ModuloSeries(FunctionSeries(lambda x: x**2, '<0;3)'))
+        ser2 = FunctionSeries(lambda x: x, '<0;3)')
 
         ser3 = ser1.join(ser2, lambda x, y: x*y)
 
