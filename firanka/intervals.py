@@ -5,6 +5,8 @@ import math
 
 import six
 
+from .exceptions import NotInDomainError
+
 __all__ = [
     'Interval',
     'REAL_SET',
@@ -155,6 +157,14 @@ class Interval(object):
         return 'Interval(%s, %s, %s, %s)' % (
             repr(self.start), repr(self.stop), repr(self.left_inc),
             repr(self.right_inc))
+
+    def contains_or_fail(self, p):
+        """
+        If p is not in this interval, NotInDomainError will be thrown
+        :param p: float
+        """
+        if p not in self:
+            raise NotInDomainError(p, self)
 
     def __getitem__(self, item):
         if not isinstance(item, slice):

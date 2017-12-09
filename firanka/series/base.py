@@ -5,7 +5,7 @@ import inspect
 
 from sortedcontainers import SortedList
 
-from firanka.exceptions import NotInDomainError, DomainError
+from firanka.exceptions import DomainError
 from firanka.intervals import Interval, EMPTY_SET
 
 
@@ -39,14 +39,10 @@ class Series(object):
             if isinstance(item, slice):
                 item = Interval(item)
 
-            if item not in self.domain:
-                raise NotInDomainError('slicing beyond series domain')
-
+            self.domain.contains_or_fail(item)
             return AlteredSeries(self, domain=self.domain.intersection(item))
         else:
-            if item not in self.domain:
-                raise NotInDomainError('item not in domain')
-
+            self.domain.contains_or_fail(item)
             return self._get_for(item)
 
     def _get_for(self, item):
@@ -82,8 +78,7 @@ class Series(object):
 
         domain = domain or Interval(points[0], points[-1], True, True)
 
-        if domain not in self.domain:
-            raise NotInDomainError('points not inside this series!')
+        self.domain.contains_or_fail(domain)
 
         return DiscreteSeries([(i, self[i]) for i in points], domain)
 

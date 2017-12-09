@@ -14,11 +14,16 @@ class FirankaError(Exception):
     """
 
 
-class DomainError(FirankaError):
+class DomainError(FirankaError, ValueError):
     """Has something to do with the domain :)"""
 
 
-class NotInDomainError(DomainError, ValueError):
+class NotInDomainError(DomainError):
     """
     Requested index is beyond this domain
     """
+
+    def __init__(self, index, domain):
+        super(NotInDomainError, self).__init__('NotInDomainError: %s not in %s' % (index, domain))
+        self.index = index
+        self.domain = domain
