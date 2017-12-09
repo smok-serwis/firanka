@@ -1,11 +1,12 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
-import logging
+
 import copy
-from .series import Series, DiscreteSeries
-from .ranges import Range
+
 from sortedcontainers import SortedList
+
+from .ranges import Range
+from .series import DiscreteSeries
 
 """
 Update knowledge of current discrete series
@@ -14,6 +15,7 @@ Update knowledge of current discrete series
 __all__ = [
     'DiscreteSeriesBuilder',
 ]
+
 
 class DiscreteSeriesBuilder(object):
     def __init__(self, series=None):
@@ -51,10 +53,10 @@ class DiscreteSeriesBuilder(object):
         for k, v in self.series.data:
             if k in cp_new_data:
                 v = cp_new_data.pop(k)
-            new_data.append((k,v))
+            new_data.append((k, v))
 
         # Add those that remained
-        for k,v in cp_new_data.items():
-            new_data.add((k,v))
+        for k, v in cp_new_data.items():
+            new_data.add((k, v))
 
         return DiscreteSeries(new_data, self.domain)

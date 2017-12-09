@@ -1,17 +1,17 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 
-import six
 import inspect
+
+from sortedcontainers import SortedList
 
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range, EMPTY_SET
-from sortedcontainers import SortedList
 
 
-def _has_arguments(fun, n):
+def _has_arguments(fun, n):  # used only in assert clauses
     assert hasattr(fun, '__call__'), 'function is not callable!'
-    return len(inspect.getargspec(fun).args) == n
+    return len(inspect.getargspec(fun).args) >= n
 
 
 class Series(object):
@@ -131,6 +131,8 @@ class DiscreteSeries(Series):
                     'some domain space is not covered by definition!')
 
     def apply(self, fun):
+        assert _has_arguments(fun, 2), 'fun must have at least 2 arguments'
+
         return DiscreteSeries([(k, fun(k, v)) for k, v in self.data],
                               self.domain)
 
@@ -174,10 +176,12 @@ class DiscreteSeries(Series):
 
         if len(a) > 0 or len(b) > 0:
             if len(a) > 0:
+                assert len(b) == 0
                 rest = a
                 static_v = series._get_for(ptr)
                 op = lambda ptr, me, const: fun(ptr, me, const)
             else:
+                assert len(a) == 0
                 rest = b
                 static_v = self._get_for(ptr)
                 op = lambda ptr, me, const: fun(ptr, const, me)
@@ -187,8 +191,9 @@ class DiscreteSeries(Series):
 
         return DiscreteSeries(c, new_domain)
 
-
     def join_discrete(self, series, fun):
+        assert _has_arguments(fun, 3), 'fun must have at least 3 arguments!'
+
         new_domain = self.domain.intersection(series.domain)
 
         if isinstance(series, DiscreteSeries):
@@ -217,7 +222,8 @@ class AlteredSeries(Series):
     """
     Internal use - for applyings, translations and slicing
     """
-    def __init__(self, series, domain=None, applyfun=lambda k,v: v, x=0, *args, **kwargs):
+
+    def __init__(self, series, domain=None, applyfun=lambda k, v: v, x=0, *args, **kwargs):
         """
         :param series: original series
         :param domain: new domain to use [if sliced]
