@@ -24,7 +24,13 @@ class ModuloSeries(Series):
         elif math.isinf(self.period):
             raise ValueError('Modulo series cannot have an infinite period')
 
+        # We internally translate the start of the series' domain to be at 0, because it simpler for us :D
+        self.intertrans = -self.series.domain.start
+
     def _get_for(self, item):
+
+        item += self.intertrans
+
         if item < 0:
             item = -(item // self.period) * self.period + item
         elif item > self.period:
