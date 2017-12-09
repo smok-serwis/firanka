@@ -31,6 +31,16 @@ class Range(object):
                      self.right_inc)
 
     def __init__(self, *args):
+        """
+        Create like:
+
+        * Range('<a;b>')
+        * Range(a, b, is_left_closed_, is_right_closed)
+        * Range(a, b) - will have both sides closed, unless one is inf
+        * Range(slice(a, b)) - will have both sides closed, unless one is None
+
+        :param args:
+        """
         if len(args) == 1:
             rs, = args
             if isinstance(rs, type(self)):
@@ -47,6 +57,9 @@ class Range(object):
 
                 start, stop = rs[1:-1].split(';')
                 args = float(start), float(stop), rs[0] == '<', rs[-1] == '>'
+
+        elif len(args) == 2:
+            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(args[1])
 
         q = lambda a, b, args: args[a] and math.isinf(args[b])
 

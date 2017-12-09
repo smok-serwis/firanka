@@ -119,9 +119,7 @@ You can create Ranges as follows:
 Range(-5, 5, True, False) == Range('<-5;5)')
 ```
 
-First boolean argument signifies whether the interval is left-closed,
-and second whether it is right-closed.
-
+For more information [use the source](firanka/ranges.py#L33)
 Range's are immutable and hashable. They can be sliced:
 
 ```python
