@@ -45,7 +45,6 @@ Applying requires a callable(index: float, value: current value) -> value.
 Joining requires a callable(index: float, valueSelf, valueOther: values from self and other table) -> value.
 
 
-
 ### DiscreteSeries
 
 To use a _DiscreteSeries_ you must give it a set of data to work with. These

@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 
-def _pre_range(fun):
+def _pre_range(fun):  # for making sure that first argument gets parsed as a Range
     @six.wraps(fun)
     def inner(self, arg, *args, **kwargs):
         if not isinstance(arg, Range):
@@ -26,6 +26,7 @@ class Range(object):
     """
     Range of real numbers. Immutable.
     """
+    __slots__ = ('start', 'stop', 'left_inc', 'right_inc')
 
     def translate(self, x):
         if x == 0:
@@ -61,8 +62,8 @@ class Range(object):
             else:
                 args = self.__fromstr(rs)
         elif len(args) == 2:
-            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(
-                args[1])
+            a, b = args
+            args = a, b, not math.isinf(a), not math.isinf(b)
 
         return args
 
@@ -142,12 +143,11 @@ class Range(object):
 
         assert self.start <= y.start
 
-        if (self.stop < y.start) or (y.stop < y.start):
+        if ((self.stop < y.start) or (y.stop < y.start)) or (
+                self.stop == y.start and not (self.right_inc and y.left_inc)):
             return EMPTY_SET
 
-        if self.stop == y.start and not (self.right_inc and y.left_inc):
-            return EMPTY_SET
-
+        # Set up range start
         if self.start == y.start:
             start = self.start
             left_inc = self.left_inc and y.left_inc
@@ -155,6 +155,7 @@ class Range(object):
             start = y.start
             left_inc = y.left_inc
 
+        # Set up range end
         if self.stop == y.stop:
             stop = self.stop
             right_inc = self.right_inc and y.right_inc
@@ -169,6 +170,7 @@ class Range(object):
     def __eq__(self, other):
         if self.is_empty() and other.is_empty():
             return True
+
         return self.start == other.start and self.stop == other.stop and self.left_inc == other.left_inc and self.right_inc == other.right_inc
 
     def __hash__(self):
