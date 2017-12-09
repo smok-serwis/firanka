@@ -7,12 +7,24 @@ import unittest
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range
 from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
-    LinearInterpolationSeries
+    LinearInterpolationSeries, Series
 
 NOOP = lambda x: x
 
 
+class TestBase(unittest.TestCase):
+    def test_abstract(self):
+        self.assertRaises(NotImplementedError, lambda: Series('<-1;1>')[0])
+
+
 class TestDiscreteSeries(unittest.TestCase):
+
+    def test_redundancy_skip(self):
+        a = DiscreteSeries([(0,0), (1,0), (2,0)], '<0;5>')
+        b = DiscreteSeries([(0,0), (1,0)], '<0;5>')
+
+        a.join(b, lambda x,y: x+y)
+
     def test_uncov(self):
         self.assertRaises(ValueError,
                           lambda: DiscreteSeries([[0, 0], [1, 1], [2, 2]],
@@ -48,6 +60,11 @@ class TestDiscreteSeries(unittest.TestCase):
         series = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
 
         self.assertRaises(NotInDomainError, lambda: series[-1:2])
+
+    def test_translate(self):
+        sp = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).translate(1)
+        self.assertEqual(sp[1.5], 0)
+        self.assertEqual(sp[2.5], 1)
 
     def test_slice(self):
         series = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
@@ -105,6 +122,11 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertRaises(ValueError, lambda: FunctionSeries(lambda x: x ** 2,
                                                              '<-10;10)').discretize(
             [0, 1, 2, 3, 4, 5], '(-1;6)'))
+
+        self.assertRaises(NotInDomainError, lambda: FunctionSeries(lambda x: x ** 2,
+                                                             '<-10;10)').discretize(
+            [-100, 0, 1, 2, 3, 4, 5], '(-1;6)'))
+
 
         PTS = [-1, 0, 1, 2, 3, 4, 5]
         sa = FunctionSeries(lambda x: x ** 2, '<-10;10)').discretize(PTS,
