@@ -41,14 +41,14 @@ to know more about series operations.
 ### DiscreteSeries
 
 To use a _DiscreteSeries_ you must give it a set of data to work with. These
-will define intervals, left-closed, right-open. Ie. 
-
+will define intervals with given values, left-closed, right-open. as in: 
 
 ```python
 fs = DiscreteSeries([(0,1), (3, 4), (5, 6)])
 fs[0.5] == 1
 fs[3] == 4
 fs[5] == 6
+fs.domain == '<0;5>'
 # fs[6] - NotInDomainError's
 ```
 
@@ -100,7 +100,7 @@ _ValueError_ will be thrown.
 
 ## Ranges
 
-Can be imported from _sai.series_.
+Can be imported from _sai.ranges_.
 
 Range would have been better called an **interval**. It is a continuous subset
 of the real number line.

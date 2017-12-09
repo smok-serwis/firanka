@@ -1,8 +1,10 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
-import logging
 
+__all__ = [
+    'FirankaError',
+    'NotInDomainError',
+]
 
 class FirankaError(Exception):
     """

@@ -3,7 +3,9 @@ from __future__ import print_function, absolute_import, division
 import six
 import math
 import unittest
-from firanka.series import DiscreteSeries, FunctionSeries, Range, ModuloSeries, NotInDomainError
+from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries
+from firanka.ranges import Range
+from firanka.exceptions import NotInDomainError
 
 NOOP = lambda x: x
 

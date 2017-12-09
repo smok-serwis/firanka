@@ -1,11 +1,13 @@
 
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
+
 import math
 
-from .range import Range, REAL_SET, EMPTY_RANGE
-from .exceptions import NotInDomainError
+import six
+
+from firanka.exceptions import NotInDomainError
+from firanka.ranges import Range, REAL_SET, EMPTY_SET
 
 
 class Series(object):
@@ -141,7 +143,7 @@ class DiscreteSeries(Series):
 
     def __init__(self, data, domain=None):
         if len(data) == 0:
-            domain = EMPTY_RANGE
+            domain = EMPTY_SET
         elif domain is None:
             domain = Range(data[0][0], data[-1][0], True, True)
 

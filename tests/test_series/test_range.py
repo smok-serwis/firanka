@@ -1,7 +1,7 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 import unittest
-from firanka.series import Range
+from firanka.ranges import Range
 
 
 class TestRange(unittest.TestCase):
@@ -42,7 +42,8 @@ class TestRange(unittest.TestCase):
         self.assertRaises(ValueError, lambda: Range('#2;3>'))
         self.assertRaises(ValueError, lambda: Range('(2;3!'))
         self.assertRaises(ValueError, lambda: Range('<-inf;3)'))
-        self.assertEqual(Range(1,2,True,False), Range('<1;2)'))
+        self.assertEqual(Range(1, 2, True, False), Range('<1;2)'))
+        self.assertEqual(Range(1, 2, True, False), '<1;2)')
 
     def test_contains(self):
         self.assertFalse(-1 in Range('<-10;-1)'))

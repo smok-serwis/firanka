@@ -1,15 +1,17 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 import six
-import logging
-import re
 import functools
 import math
 
-logger = logging.getLogger(__name__)
+__all__ = [
+    'Range',
+    'REAL_SET',
+    'EMPTY_SET'
+]
 
 
-def pre_range(fun):
+def _pre_range(fun):
     @functools.wraps(fun)
     def inner(self, arg, *args, **kwargs):
         if not isinstance(arg, Range):
@@ -100,7 +102,7 @@ class Range(object):
             '>' if self.right_inc else ')',
         )
 
-    @pre_range
+    @_pre_range
     def intersection(self, y):
         if self.start > y.start:
             return y.intersection(self)
@@ -108,10 +110,10 @@ class Range(object):
         assert self.start <= y.start
 
         if (self.stop < y.start) or (y.stop < y.start):
-            return EMPTY_RANGE
+            return EMPTY_SET
 
         if self.stop == y.start and not (self.right_inc and y.left_inc):
-            return EMPTY_RANGE
+            return EMPTY_SET
 
         if self.start == y.start:
             start = self.start
@@ -130,7 +132,7 @@ class Range(object):
 
         return Range(start, stop, left_inc, right_inc)
 
-    @pre_range
+    @_pre_range
     def __eq__(self, other):
         if self.is_empty() and other.is_empty():
             return True
@@ -140,5 +142,5 @@ class Range(object):
         return hash(self.start) ^ hash(self.stop)
 
 
-EMPTY_RANGE = Range(0, 0, False, False)
+EMPTY_SET = Range(0, 0, False, False)
 REAL_SET = Range(float('-inf'), float('+inf'), False, False)
