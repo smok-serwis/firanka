@@ -2,7 +2,7 @@
 from __future__ import print_function, absolute_import, division
 import six
 import unittest
-from firanka.series import DiscreteSeries, FunctionBasedSeries, Range, ModuloSeries
+from firanka.series import DiscreteSeries, FunctionBasedSeries, Range, ModuloSeries, NotInDomainError
 
 
 class TestDiscreteSeries(unittest.TestCase):
@@ -14,15 +14,15 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertEqual(s[0.5], 0)
         self.assertEqual(s[1], 1)
 
-        self.assertRaises(ValueError, lambda: s[-1])
-        self.assertRaises(ValueError, lambda: s[2.5])
+        self.assertRaises(NotInDomainError, lambda: s[-1])
+        self.assertRaises(NotInDomainError, lambda: s[2.5])
 
         s = DiscreteSeries([[0,0], [1,1], [2,2]], domain=Range(0,3,True,True))
         self.assertEqual(s[0], 0)
         self.assertEqual(s[0.5], 0)
         self.assertEqual(s[1], 1)
 
-        self.assertRaises(ValueError, lambda: s[-1])
+        self.assertRaises(NotInDomainError, lambda: s[-1])
         self.assertEqual(s[2.5], 2)
 
     def test_translation(self):
@@ -39,8 +39,8 @@ class TestDiscreteSeries(unittest.TestCase):
 
         self.assertEqual(sp[0.5], 0)
         self.assertEqual(sp[1.5], 1)
-        self.assertRaises(ValueError, lambda: sp[0])
-        self.assertRaises(ValueError, lambda: sp[2])
+        self.assertRaises(NotInDomainError, lambda: sp[0])
+        self.assertRaises(NotInDomainError, lambda: sp[2])
         self.assertEqual(sp.domain.start, 0.5)
         self.assertEqual(sp.domain.stop, 1.5)
 
@@ -97,8 +97,8 @@ class TestFunctionBasedSeries(unittest.TestCase):
 
         self.assertEqual(sp[0.5], 0.5)
         self.assertEqual(sp[1.5], 1.5)
-        self.assertRaises(ValueError, lambda: sp[0])
-        self.assertRaises(ValueError, lambda: sp[2])
+        self.assertRaises(NotInDomainError, lambda: sp[0])
+        self.assertRaises(NotInDomainError, lambda: sp[2])
         self.assertEqual(sp.domain.start, 0.5)
         self.assertEqual(sp.domain.stop, 1.5)
 

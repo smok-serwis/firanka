@@ -53,11 +53,10 @@ class Range(object):
         :type x: index or a Range
         """
 
-        if isinstance(x, (Range, six.text_type)):
-            if isinstance(x, six.text_type):
-                x = Range(x)
-            print('does ', self, 'contain', x)
+        if isinstance(x, six.string_types):
+            x = Range(x)
 
+        if isinstance(x, Range):
             if x.start == self.start:
                 if x.left_inc ^ self.left_inc:
                     return False

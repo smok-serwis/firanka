@@ -63,13 +63,13 @@ class Series(object):
         if len(points) == 0:
             return DiscreteSeries([])
 
-        if domain is None:
-            domain = Range(points[0], points[-1], True, True)
+        domain = domain or Range(min(points), max(points), True, True)
 
         if domain not in self.domain:
             raise NotInDomainError('points not inside this series!')
 
         data = [(i, self[i]) for i in points]
+        data.sort()
         return DiscreteSeries(data, domain)
 
     def join(self, series, fun):

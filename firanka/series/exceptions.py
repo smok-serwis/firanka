@@ -5,7 +5,9 @@ import logging
 
 
 class FirankaError(Exception):
-    pass
+    """
+    Base class for firanka's exceptions
+    """
 
 
 class NotInDomainError(FirankaError, ValueError):
