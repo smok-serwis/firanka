@@ -1,14 +1,10 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 
-import math
-
 import six
 
 from firanka.exceptions import NotInDomainError
-from firanka.ranges import Range, REAL_SET, EMPTY_SET
-
-
+from firanka.ranges import Range, EMPTY_SET
 
 
 class Series(object):
@@ -281,4 +277,3 @@ class JoinedSeries(Series):
 
     def _get_for(self, item):
         return self.op(self.ser1._get_for(item), self.ser2._get_for(item))
-

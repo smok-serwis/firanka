@@ -1,10 +1,8 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
-import logging
 
-from .series import Series
 from .ranges import Range
+from .series import Series
 
 
 class BijectionMapping(object):

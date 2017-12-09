@@ -1,7 +1,6 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
-import logging
+
 import math
 
 from .base import Series
@@ -34,6 +33,3 @@ class ModuloSeries(Series):
             item = 0
 
         return self.series._get_for(self.series.domain.start + item)
-
-
-

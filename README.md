@@ -106,6 +106,9 @@ take its neighbours into account and let you return a custom value.
 By default, it will assumes that values can be added, subbed, multed and dived,
 and will do classical linear interpolation.
 
+They can either utilize an existing discrete series, or be created just as
+any other discrete series would be.
+
 ## Ranges
 
 Can be imported from _sai.ranges_.
