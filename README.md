@@ -9,4 +9,21 @@
 [![PyPI](https://img.shields.io/pypi/wheel/firanka.svg)]()
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 
-Calculations on real functions
+Calculations on continuous, domain-being-a-single-interval, real domain
+functions.
+
+Functions of index: float -> any;
+
+
+
+You can:
+
+* join two series with a single operation
+* use a function on each value
+
+```python
+from firanka.series import DiscreteSeries, FunctionBasedSeries
+
+ds = DiscreteSeries(list of tuple(index, value), '<-20;4)')
+
+```

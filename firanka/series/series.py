@@ -5,7 +5,8 @@ import six
 import functools
 import itertools
 
-from .range import Range, REAL_SET
+from .range import Range, REAL_SET, EMPTY_RANGE
+from .exceptions import NotInDomainError
 
 
 class Series(object):
@@ -16,16 +17,22 @@ class Series(object):
         self.domain = domain
 
     def __getitem__(self, item):
+        """
+        Return a value for given index, or a subslice of this series
+        :param item: a float, or a slice
+        :return: Series instance or a value
+        :raises NotInDomainError: index not in domain
+        """
         if isinstance(item, slice):
             item = Range(item)
             if item not in self.domain:
-                raise ValueError('slicing beyond series domain')
+                raise NotInDomainError('slicing beyond series domain')
 
             newdom = self.domain.intersection(item)
             return SlicedSeries(self, newdom)
         else:
             if item not in self.domain:
-                raise ValueError('item not in domain')
+                raise NotInDomainError('item not in domain')
 
             return self._get_for(item)
 
@@ -33,13 +40,65 @@ class Series(object):
         raise NotImplementedError
 
     def eval_points(self, points):
+        """
+        Return values for given points. A mass [] one could say
+        :param points: iterable of indices
+        :return: a list of values
+        """
         return [self[p] for p in points]
 
-    def apply(self, series, fun):
-        return AppliedSeries(self, series, fun)
+    def apply(self, fun):
+        """
+        Return this series with a function applied to each value
+        :param fun: callable/1 => 1
+        :return: Series instance
+        """
+        return AppliedSeries(self, fun)
+
+    def discretize(self, points, domain=None):
+        """
+        Return this as a DiscreteSeries, sampled at points
+        :return: a DiscreteSeries instance
+        """
+        if len(points) == 0:
+            return DiscreteSeries([])
+
+        if domain is None:
+            domain = Range(points[0], points[-1], True, True)
+
+        if domain not in self.domain:
+            raise NotInDomainError('points not inside this series!')
+
+        data = [(i, self[i]) for i in points]
+        return DiscreteSeries(data, domain)
+
+    def join(self, series, fun):
+        """
+        Return a new series with values of fun(v1, v2)
+
+        :param series: series to join against
+        :param fun: callable/2 => value
+        :return: new Series instance
+        """
+        return JoinedSeries(self, series, fun)
 
     def translate(self, x):
+        """
+        Translate the series by some distance
+        :param x: a float
+        :return: new Series instance
+        """
         return TranslatedSeries(self, x)
+
+
+class AppliedSeries(Series):
+    def __init__(self, series, applyfun):
+        super(AppliedSeries, self).__init__(series.domain)
+        self.fun = applyfun
+        self.series = series
+
+    def _get_for(self, item):
+        return self.fun(self._get_for(item))
 
 
 class TranslatedSeries(Series):
@@ -64,11 +123,16 @@ class SlicedSeries(Series):
 class DiscreteSeries(Series):
 
     def __init__(self, data, domain=None):
-        if domain is None:
+        if len(data) == 0:
+            domain = EMPTY_RANGE
+        elif domain is None:
             domain = Range(data[0][0], data[-1][0], True, True)
 
         self.data = data
         super(DiscreteSeries, self).__init__(domain)
+
+    def apply(self, fun):
+        return DiscreteSeries([(k, fun(v)) for k, v in self.data], self.domain)
 
     def _get_for(self, item):
         for k, v in reversed(self.data):
@@ -80,7 +144,7 @@ class DiscreteSeries(Series):
     def translate(self, x):
         return DiscreteSeries([(k+x, v) for k, v in self.data], self.domain.translate(x))
 
-    def apply(self, series, fun):
+    def join_discrete(self, series, fun):
         new_domain = self.domain.intersection(series.domain)
 
         if isinstance(series, DiscreteSeries):
@@ -156,16 +220,24 @@ class DiscreteSeries(Series):
 
 
 class FunctionBasedSeries(Series):
+    """
+    Series with values defined by a function
+    """
     def __init__(self, fun, domain):
         super(FunctionBasedSeries, self).__init__(domain)
         self.fun = fun
-        self._get_for = fun
+
+    def _get_for(self, item):
+        return self.fun(item)
 
 
-class AppliedSeries(Series):
+class JoinedSeries(Series):
+    """
+    Series stemming from performing an operation on two series
+    """
     def __init__(self, ser1, ser2, op):
-        super(AppliedSeries, self).__init__(
-            ser1.domain.intersection(ser2.domain))
+        domain = ser1.domain.intersection(ser2.domain)
+        super(JoinedSeries, self).__init__(domain)
         self.ser1 = ser1
         self.ser2 = ser2
         self.op = op
@@ -173,12 +245,17 @@ class AppliedSeries(Series):
     def _get_for(self, item):
         return self.op(self.ser1._get_for(item), self.ser2._get_for(item))
 
+
 class ModuloSeries(Series):
+
     def __init__(self, series):
         super(ModuloSeries, self).__init__(REAL_SET)
 
         self.series = series
         self.period = self.series.domain.length()
+
+        if self.period == 0:
+            raise ValueError('Modulo series cannot have a period of 0')
 
     def _get_for(self, item):
         if item < 0:
@@ -189,4 +266,3 @@ class ModuloSeries(Series):
             item = 0
 
         return self.series._get_for(self.series.domain.start + item)
-
