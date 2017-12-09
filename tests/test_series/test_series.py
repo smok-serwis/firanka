@@ -92,7 +92,6 @@ class TestDiscreteSeries(unittest.TestCase):
 class TestFunctionBasedSeries(unittest.TestCase):
     def test_slice(self):
         series = FunctionBasedSeries(lambda x: x, '<0;2>')
-
         sp = series[0.5:1.5]
 
         self.assertEqual(sp[0.5], 0.5)
@@ -102,6 +101,11 @@ class TestFunctionBasedSeries(unittest.TestCase):
         self.assertEqual(sp.domain.start, 0.5)
         self.assertEqual(sp.domain.stop, 1.5)
 
+    def test_apply(self):
+        PTS = [-1,-2,-3,1,2,3]
+        series = FunctionBasedSeries(lambda x: x, '<-5;5>').apply(lambda x: x*2)
+
+        self.assertEqual(series.eval_points(PTS), [x*2 for x in PTS])
 
 class TestModuloSeries(unittest.TestCase):
     def test_base(self):

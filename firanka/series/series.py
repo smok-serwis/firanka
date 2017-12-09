@@ -19,12 +19,14 @@ class Series(object):
     def __getitem__(self, item):
         """
         Return a value for given index, or a subslice of this series
-        :param item: a float, or a slice
+        :param item: a float, or a slice, or a Range
         :return: Series instance or a value
         :raises NotInDomainError: index not in domain
         """
-        if isinstance(item, slice):
-            item = Range(item)
+        if isinstance(item, (Range, slice)):
+            if isinstance(item, slice):
+                item = Range(item)
+
             if item not in self.domain:
                 raise NotInDomainError('slicing beyond series domain')
 
@@ -63,14 +65,14 @@ class Series(object):
         if len(points) == 0:
             return DiscreteSeries([])
 
-        domain = domain or Range(min(points), max(points), True, True)
+        points = list(sorted(points))
+
+        domain = domain or Range(points[0], points[-1], True, True)
 
         if domain not in self.domain:
             raise NotInDomainError('points not inside this series!')
 
-        data = [(i, self[i]) for i in points]
-        data.sort()
-        return DiscreteSeries(data, domain)
+        return DiscreteSeries([(i, self[i]) for i in points], domain)
 
     def join(self, series, fun):
         """
@@ -98,7 +100,7 @@ class AppliedSeries(Series):
         self.series = series
 
     def _get_for(self, item):
-        return self.fun(self._get_for(item))
+        return self.fun(self.series._get_for(item))
 
 
 class TranslatedSeries(Series):
