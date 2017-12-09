@@ -9,10 +9,12 @@ class TestRange(unittest.TestCase):
         if type(val) == bool:
             p = Range(a).intersection(b)
             if p.is_empty() != val:
-                self.fail('%s ^ %s [=> %s] != %s' % (Range(a), Range(b), p, val))
+                self.fail(
+                    '%s ^ %s [=> %s] != %s' % (Range(a), Range(b), p, val))
             p = Range(b).intersection(a)
             if p.is_empty() != val:
-                self.fail('%s ^ %s [=> %s] != %s' % (Range(b), Range(a), p, val))
+                self.fail(
+                    '%s ^ %s [=> %s] != %s' % (Range(b), Range(a), p, val))
         else:
             self.assertEqual(Range(a).intersection(b), Range(val))
             self.assertEqual(Range(b).intersection(a), Range(val))
@@ -21,9 +23,9 @@ class TestRange(unittest.TestCase):
         self.assertTrue(Range('<-5;5>')[0:] == Range('<0;5>'))
 
     def test_isempty(self):
-        self.assertTrue(Range(-1,-1,False,False).is_empty())
-        self.assertFalse(Range(-1,-1,False,True).is_empty())
-        self.assertEqual(Range(0,0,False,False), Range(2,2,False,False))
+        self.assertTrue(Range(-1, -1, False, False).is_empty())
+        self.assertFalse(Range(-1, -1, False, True).is_empty())
+        self.assertEqual(Range(0, 0, False, False), Range(2, 2, False, False))
 
     def test_intersection(self):
         self.do_intersect('<-10;1>', '<2;3>', True)
@@ -34,8 +36,8 @@ class TestRange(unittest.TestCase):
         self.do_intersect('<-5;5>', '(-5;5)', '(-5;5)')
 
     def test_str_and_repr_and_bool(self):
-        p = Range(-1,1,True,True)
-        self.assertEqual(eval(repr(p)),p)
+        p = Range(-1, 1, True, True)
+        self.assertEqual(eval(repr(p)), p)
         self.assertEqual(str(Range(-1, 1, True, True)), '<-1;1>')
 
     def test_constructor(self):

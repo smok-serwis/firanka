@@ -6,6 +6,7 @@ __all__ = [
     'NotInDomainError',
 ]
 
+
 class FirankaError(Exception):
     """
     Base class for firanka's exceptions

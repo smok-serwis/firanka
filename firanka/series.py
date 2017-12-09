@@ -1,4 +1,3 @@
-
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
 
@@ -129,12 +128,13 @@ class AppliedSeries(Series):
 
 class TranslatedSeries(Series):
     def __init__(self, series, x, *args, **kwargs):
-        super(TranslatedSeries, self).__init__(self.domain.translate(x), *args, **kwargs)
+        super(TranslatedSeries, self).__init__(self.domain.translate(x), *args,
+                                               **kwargs)
         self.series = series
         self.x = x
 
     def _get_for(self, item):
-        return self.series._get_for(item+self.x)
+        return self.series._get_for(item + self.x)
 
 
 class SlicedSeries(Series):
@@ -157,7 +157,6 @@ def _appendif(lst, ptr, v):
 
 
 class DiscreteSeries(Series):
-
     def __init__(self, data, domain=None, *args, **kwargs):
         if len(data) == 0:
             domain = EMPTY_SET
@@ -169,13 +168,15 @@ class DiscreteSeries(Series):
 
         if len(data) > 0:
             if self.domain.start < data[0][0]:
-                raise ValueError('some domain space is not covered by definition!')
+                raise ValueError(
+                    'some domain space is not covered by definition!')
 
     def apply(self, fun):
         return DiscreteSeries([(k, fun(v)) for k, v in self.data], self.domain)
 
     def apply_with_indices(self, fun):
-        return DiscreteSeries([(k, fun(k, v)) for k, v in self.data], self.domain)
+        return DiscreteSeries([(k, fun(k, v)) for k, v in self.data],
+                              self.domain)
 
     def _get_for(self, item):
         for k, v in reversed(self.data):
@@ -185,7 +186,8 @@ class DiscreteSeries(Series):
         raise RuntimeError('should never happen')
 
     def translate(self, x):
-        return DiscreteSeries([(k+x, v) for k, v in self.data], self.domain.translate(x))
+        return DiscreteSeries([(k + x, v) for k, v in self.data],
+                              self.domain.translate(x))
 
     def _join_discrete_other_discrete(self, series, fun):
         new_domain = self.domain.intersection(series.domain)
@@ -233,15 +235,18 @@ class DiscreteSeries(Series):
             return self._join_discrete_other_discrete(series, fun)
 
         if new_domain.start > self.data[0][0]:
-            c = [(new_domain.start, fun(self._get_for(new_domain.start), series._get_for(new_domain.start)))]
+            c = [(new_domain.start, fun(self._get_for(new_domain.start),
+                                        series._get_for(new_domain.start)))]
         else:
             c = []
 
-        for k, v in ((k, v) for k, v in self.data if new_domain.start <= k <= new_domain.stop):
+        for k, v in ((k, v) for k, v in self.data if
+                     new_domain.start <= k <= new_domain.stop):
             _appendif(c, k, fun(v, series._get_for(k)))
 
         if c[-1][0] != new_domain.stop:
-            c.append((new_domain.stop, fun(self._get_for(new_domain.stop), series._get_for(new_domain.stop))))
+            c.append((new_domain.stop, fun(self._get_for(new_domain.stop),
+                                           series._get_for(new_domain.stop))))
 
         return DiscreteSeries(c, new_domain)
 
@@ -249,8 +254,8 @@ class DiscreteSeries(Series):
         """Simplify self"""
         nd = [self.data[0]]
         for i in six.moves.range(1, len(self.data)):
-             if self.data[i][1] != nd[-1][1]:
-                 nd.append(self.data[i])
+            if self.data[i][1] != nd[-1][1]:
+                nd.append(self.data[i])
         return DiscreteSeries(nd, self.domain)
 
 
@@ -258,6 +263,7 @@ class FunctionSeries(Series):
     """
     Series with values defined by a function
     """
+
     def __init__(self, fun, domain, *args, **kwargs):
         super(FunctionSeries, self).__init__(domain, *args, **kwargs)
         self.fun = fun
@@ -270,6 +276,7 @@ class JoinedSeries(Series):
     """
     Series stemming from performing an operation on two series
     """
+
     def __init__(self, ser1, ser2, op, *args, **kwargs):
         domain = ser1.domain.intersection(ser2.domain)
         super(JoinedSeries, self).__init__(domain, *args, **kwargs)
@@ -282,7 +289,6 @@ class JoinedSeries(Series):
 
 
 class ModuloSeries(Series):
-
     def __init__(self, series, *args, **kwargs):
         """
         Construct a modulo series

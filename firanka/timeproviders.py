@@ -3,13 +3,11 @@ from __future__ import print_function, absolute_import, division
 import six
 import logging
 
-
 from .series import Series
 from .ranges import Range
 
 
 class BijectionMapping(object):
-
     def __init__(self, user2float, float2user):
         """
         :param user2float: callable/1 => float, mapping from your time system to floats
@@ -29,11 +27,13 @@ class TimeProvidedSeries(Series):
     """
     If your time is something else than simple floats, this will help you out
     """
+
     def __init__(self, series, mapping, *args, **kwargs):
         """
         :param series: series to overlay
         """
-        super(TimeProvidedSeries, self).__init__(series.domain, *args, **kwargs)
+        super(TimeProvidedSeries, self).__init__(series.domain, *args,
+                                                 **kwargs)
         self.mapping = mapping
         self.series = series
 
@@ -42,8 +42,11 @@ class TimeProvidedSeries(Series):
 
     def __getitem__(self, item):
         if isinstance(item, slice):
-            item = slice(float('-inf') if slice.start is None else self.to_float(slice.start),
-                         float('+inf') if slice.stop is None else self.to_float(slice.stop),)
+            item = slice(
+                float('-inf') if slice.start is None else self.to_float(
+                    slice.start),
+                float('+inf') if slice.stop is None else self.to_float(
+                    slice.stop), )
 
             return self._withmap(self.series[item])
         elif isinstance(item, Range):

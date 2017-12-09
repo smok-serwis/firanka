@@ -17,6 +17,7 @@ def _pre_range(fun):
         if not isinstance(arg, Range):
             arg = Range(arg)
         return fun(self, arg, *args, **kwargs)
+
     return inner
 
 
@@ -26,7 +27,8 @@ class Range(object):
     """
 
     def translate(self, x):
-        return Range(self.start+x, self.stop+x, self.left_inc, self.right_inc)
+        return Range(self.start + x, self.stop + x, self.left_inc,
+                     self.right_inc)
 
     def __init__(self, *args):
         if len(args) == 1:
@@ -38,7 +40,8 @@ class Range(object):
                 stop = rs.stop if rs.stop is not None else float('+inf')
                 args = start, stop, not math.isinf(start), not math.isinf(stop)
             else:
-                if rs[0] not in '<(': raise ValueError('Must start with ( or <')
+                if rs[0] not in '<(': raise ValueError(
+                    'Must start with ( or <')
                 if rs[-1] not in '>)': raise ValueError('Must end with ) or >')
                 if ';' not in rs: raise ValueError('Separator ; required')
 
@@ -56,18 +59,14 @@ class Range(object):
         """
         :type x: index or a Range
         """
-
         if isinstance(x, six.string_types):
             x = Range(x)
 
         if isinstance(x, Range):
-            if x.start == self.start:
-                if x.left_inc ^ self.left_inc:
-                    return False
-
-            if x.stop == self.stop:
-                if x.right_inc ^ self.right_inc:
-                    return False
+            if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
+                    or ((x.stop == self.stop) and (
+                        x.right_inc ^ self.right_inc)):
+                return False
 
             return (x.start >= self.start) and (x.stop <= self.stop)
         else:
@@ -80,13 +79,16 @@ class Range(object):
             return self.start < x < self.stop
 
     def is_empty(self):
-        return (self.start == self.stop) and not (self.left_inc or self.right_inc)
+        return (self.start == self.stop) and not (
+        self.left_inc or self.right_inc)
 
     def length(self):
         return self.stop - self.start
 
     def __repr__(self):
-        return 'Range(%s, %s, %s, %s)' % (repr(self.start), repr(self.stop), repr(self.left_inc), repr(self.right_inc))
+        return 'Range(%s, %s, %s, %s)' % (
+        repr(self.start), repr(self.stop), repr(self.left_inc),
+        repr(self.right_inc))
 
     def __getitem__(self, item):
         if not isinstance(item, slice):
