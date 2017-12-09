@@ -28,7 +28,6 @@ class ModuloSeries(Series):
         self.intertrans = -self.series.domain.start
 
     def _get_for(self, item):
-
         item += self.intertrans
 
         if item < 0:
