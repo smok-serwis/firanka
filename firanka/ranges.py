@@ -55,7 +55,7 @@ class Range(object):
     def __getargs(self, args):
         if len(args) == 1:
             rs, = args
-            if isinstance(rs, type(self)):
+            if isinstance(rs, Range):
                 args = self.__fromrange(rs)
             elif isinstance(rs, slice):
                 args = self.__fromslice(rs)

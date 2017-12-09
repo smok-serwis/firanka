@@ -49,6 +49,9 @@ class TestRange(unittest.TestCase):
         self.assertEqual(Range(1, 2, True, False), Range('<1;2)'))
         self.assertEqual(Range(1, 2, True, False), '<1;2)')
 
+        r = Range(1, 2, True, False)
+        self.assertEqual(r, Range(r))
+
     def test_contains(self):
         self.assertFalse(-1 in Range('<-10;-1)'))
         self.assertTrue(-10 in Range('<-10;-1)'))
@@ -57,6 +60,8 @@ class TestRange(unittest.TestCase):
         self.assertTrue(-5 in Range('(-10;-1>'))
         self.assertFalse(-20 in Range('(-10;-1>'))
         self.assertFalse(1 in Range('(-10;-1>'))
+        self.assertFalse('<-10;-1>' in Range('(-10;-1)'))
+        self.assertFalse('<-10;-1)' in Range('(-10;-1>'))
 
         self.assertTrue(Range('<-5;5>') in Range('<-10;10>'))
         self.assertTrue('(-1;6)' in Range(-10.0, 10.0, True, False))
