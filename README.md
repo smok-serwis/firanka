@@ -98,6 +98,14 @@ By definition, _ModuloSeries_ has the domain of all real numbers.
 Note that someOtherSeries's domain length must be non-zero and finite. Otherwise
 _ValueError_ will be thrown.
 
+## LinearInterpolationSeries
+
+These are discretes, but allow you to define an operator that will
+take its neighbours into account and let you return a custom value.
+
+By default, it will assumes that values can be added, subbed, multed and dived,
+and will do classical linear interpolation.
+
 ## Ranges
 
 Can be imported from _sai.ranges_.

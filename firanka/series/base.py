@@ -8,14 +8,7 @@ import six
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range, REAL_SET, EMPTY_SET
 
-__all__ = [
-    'FunctionSeries',
-    'DiscreteSeries',
-    'ModuloSeries',
-    'Series',
-    'SCALAR_LINEAR_INTERPOLATOR',
-    'LinearInterpolationSeries',
-]
+
 
 
 class Series(object):
@@ -289,71 +282,3 @@ class JoinedSeries(Series):
     def _get_for(self, item):
         return self.op(self.ser1._get_for(item), self.ser2._get_for(item))
 
-
-class ModuloSeries(Series):
-    def __init__(self, series, *args, **kwargs):
-        """
-        Construct a modulo series
-        :param series: base series to use
-        :raise ValueError: invalid domain length
-        """
-        super(ModuloSeries, self).__init__(REAL_SET, *args, **kwargs)
-
-        self.series = series
-        self.period = self.series.domain.length()
-
-        if self.period == 0:
-            raise ValueError('Modulo series cannot have a period of 0')
-        elif math.isinf(self.period):
-            raise ValueError('Modulo series cannot have an infinite period')
-
-    def _get_for(self, item):
-        if item < 0:
-            item = -(item // self.period) * self.period + item
-        elif item > self.period:
-            item = item - (item // self.period) * self.period
-        elif item == self.period:
-            item = 0
-
-        return self.series._get_for(self.series.domain.start + item)
-
-
-def SCALAR_LINEAR_INTERPOLATOR(t0, v0, t1, v1, tt):
-    """
-    Good intepolator if our values can be added, subtracted, multiplied and divided
-    """
-    return v0 + (tt-t0) * (t1-t0)/(v1-v0)
-
-
-class LinearInterpolationSeries(DiscreteSeries):
-
-    def __init__(self, data, domain=None,
-                 interpolator=lambda t0, v0, t1, v1, tt: v0
-                 , *args, **kwargs):
-        """
-        :param interpolator: callable(t0: float, v0: any, t1: float, v1: any, tt: float) -> any
-            This, given intepolation points (t0, v0) and (t1, v1) such that t0 <= tt <= t1,
-            return a value for index tt
-        """
-        self.interpolator = interpolator
-        if isinstance(data, DiscreteSeries):
-            self.data = data.data
-            self.domain = domain or data.domain
-        else:
-            super(LinearInterpolationSeries, self).__init__(data, domain, *args, **kwargs)
-
-    def _get_for(self, item):
-        if item == self.domain.start:
-            return self.data[0][1]
-
-        if len(self.data) == 1:
-            return super(LinearInterpolationSeries, self).__getitem__(item)
-
-        for i in six.moves.range(0, len(self.data)-1):
-            cur_i, cur_v = self.data[i]
-            next_i, next_v = self.data[i+1]
-
-            if cur_i <= item <= next_i:
-                return self.interpolator(cur_i, cur_v, next_i, next_v, item)
-
-        return self.data[-1][1]
