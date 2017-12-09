@@ -15,7 +15,10 @@ __all__ = [
 ]
 
 class DiscreteKnowledgeBuilder(object):
-    def __init__(self, series):
+    def __init__(self, series=None):
+
+        if series is None:
+            series = DiscreteSeries([], '(0;0)')
 
         if not isinstance(series, DiscreteSeries):
             raise TypeError('discrete knowledge builder supports only discrete series')
@@ -34,11 +37,24 @@ class DiscreteKnowledgeBuilder(object):
 
         self.new_data[index] = value
 
-    def update_series(self):
-        """:return: a new DiscreteSeries instance"""
+    def as_series(self):
+        """
+        Update
+        :return: a new DiscreteSeries instance
+        """
 
-        new_data = copy.copy(self.series.data)
-        for k,v in self.new_data.items():
-            new_data.add((k,v))
+        new_data = []
+
+        cp_new_data = copy.copy(self.new_data)
+
+        # Update
+        for k, v in self.series.data:
+            if k in cp_new_data:
+                v = cp_new_data.pop(k)
+            new_data.append((k,v))
+
+        # Add those that remained
+        for k,v in cp_new_data.items():
+            new_data.append((k,v))
 
         return DiscreteSeries(new_data, self.domain)

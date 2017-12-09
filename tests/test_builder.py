@@ -16,9 +16,10 @@ class TestBuilder(unittest.TestCase):
 
         kb.put(3, 4)
         kb.put(-1, 5)
+        kb.put(0, 2)
         kb.put(-1, 6)
 
-        s2 = kb.update_series()
+        s2 = kb.as_series()
 
         self.assertTrue(s2.domain, '<-1;3>')
-        self.assertEqual(s2.data,[(-1,6), (0,1), (1,2), (3,4)])
+        self.assertEqual(s2.data,[(-1,6), (0,2), (1,2), (3,4)])
