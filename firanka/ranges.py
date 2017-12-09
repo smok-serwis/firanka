@@ -37,7 +37,7 @@ class Range(object):
 
     def __fromslice(self, rs):
         start = float('-inf') if rs.start is None else rs.start
-        stop = float('+inf') if rs.stop is not None else rs.stop
+        stop = float('+inf') if rs.stop is None else rs.stop
         return start, stop, not math.isinf(start), not math.isinf(stop)
 
     def __fromrange(self, rs):
@@ -97,8 +97,7 @@ class Range(object):
 
         if isinstance(x, Range):
             if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
-                    or ((x.stop == self.stop) and (
-                                x.right_inc ^ self.right_inc)):
+                or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
                 return False
 
             return (x.start >= self.start) and (x.stop <= self.stop)

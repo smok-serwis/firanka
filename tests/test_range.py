@@ -60,3 +60,4 @@ class TestRange(unittest.TestCase):
 
         self.assertTrue(Range('<-5;5>') in Range('<-10;10>'))
         self.assertTrue('(-1;6)' in Range(-10.0, 10.0, True, False))
+        self.assertTrue('<0.5;1.5>' in Range('<0;2>'))
