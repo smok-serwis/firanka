@@ -5,6 +5,7 @@ import six
 
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range, EMPTY_SET
+from sortedcontainers import SortedList
 
 
 class Series(object):
@@ -117,6 +118,9 @@ class Series(object):
 
 class DiscreteSeries(Series):
     def __init__(self, data, domain=None, *args, **kwargs):
+
+        data = SortedList(data)
+
         if len(data) == 0:
             domain = EMPTY_SET
         elif domain is None:
