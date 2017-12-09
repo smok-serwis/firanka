@@ -1,11 +1,13 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
+
 import math
 import unittest
-from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries
-from firanka.ranges import Range
+
 from firanka.exceptions import NotInDomainError
+from firanka.ranges import Range
+from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
+    LinearInterpolationSeries
 
 NOOP = lambda x: x
 
@@ -174,3 +176,18 @@ class TestModuloSeries(unittest.TestCase):
         ser2 = FunctionSeries(NOOP, '<0;3)')
 
         ser3 = ser1.join(ser2, lambda x, y: x * y)
+
+
+class TestLinearInterpolation(unittest.TestCase):
+    def test_lin(self):
+        series = LinearInterpolationSeries(
+            DiscreteSeries([(0, 1), (1, 2), (2, 3)], '<0;3)'))
+
+        self.assertEqual(series[0], 1)
+        self.assertEqual(series[0.5], 1.5)
+        self.assertEqual(series[1], 2)
+        self.assertEqual(series[2.3], 3)
+
+    def test_conf(self):
+        self.assertRaises(TypeError, lambda: LinearInterpolationSeries(
+            FunctionSeries(NOOP, '<0;3)')))

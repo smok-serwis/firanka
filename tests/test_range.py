@@ -1,6 +1,8 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
+
 import unittest
+
 from firanka.ranges import Range
 
 
@@ -38,7 +40,7 @@ class TestRange(unittest.TestCase):
     def test_str_and_repr_and_bool(self):
         p = Range(-1, 1, True, True)
         self.assertEqual(eval(repr(p)), p)
-        self.assertEqual(str(Range(-1, 1, True, True)), '<-1;1>')
+        self.assertEqual(str(Range(-1, 1)), '<-1;1>')
 
     def test_constructor(self):
         self.assertRaises(ValueError, lambda: Range('#2;3>'))

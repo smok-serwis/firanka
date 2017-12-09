@@ -1,8 +1,10 @@
 # coding=UTF-8
 from __future__ import print_function, absolute_import, division
-import six
+
 import functools
 import math
+
+import six
 
 __all__ = [
     'Range',
@@ -31,6 +33,16 @@ class Range(object):
                      self.right_inc)
 
     def __init__(self, *args):
+        """
+        Create like:
+
+        * Range('<a;b>')
+        * Range(a, b, is_left_closed_, is_right_closed)
+        * Range(a, b) - will have both sides closed, unless one is inf
+        * Range(slice(a, b)) - will have both sides closed, unless one is None
+
+        :param args:
+        """
         if len(args) == 1:
             rs, = args
             if isinstance(rs, type(self)):
@@ -47,6 +59,10 @@ class Range(object):
 
                 start, stop = rs[1:-1].split(';')
                 args = float(start), float(stop), rs[0] == '<', rs[-1] == '>'
+
+        elif len(args) == 2:
+            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(
+                args[1])
 
         q = lambda a, b, args: args[a] and math.isinf(args[b])
 
@@ -65,7 +81,7 @@ class Range(object):
         if isinstance(x, Range):
             if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
                     or ((x.stop == self.stop) and (
-                        x.right_inc ^ self.right_inc)):
+                                x.right_inc ^ self.right_inc)):
                 return False
 
             return (x.start >= self.start) and (x.stop <= self.stop)
@@ -80,15 +96,15 @@ class Range(object):
 
     def is_empty(self):
         return (self.start == self.stop) and not (
-        self.left_inc or self.right_inc)
+            self.left_inc or self.right_inc)
 
     def length(self):
         return self.stop - self.start
 
     def __repr__(self):
         return 'Range(%s, %s, %s, %s)' % (
-        repr(self.start), repr(self.stop), repr(self.left_inc),
-        repr(self.right_inc))
+            repr(self.start), repr(self.stop), repr(self.left_inc),
+            repr(self.right_inc))
 
     def __getitem__(self, item):
         if not isinstance(item, slice):
