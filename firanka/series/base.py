@@ -6,7 +6,7 @@ import inspect
 from sortedcontainers import SortedList
 
 from firanka.exceptions import NotInDomainError
-from firanka.ranges import Range, EMPTY_SET
+from firanka.intervals import Interval, EMPTY_SET
 
 
 def _has_arguments(fun, n):  # used only in assert clauses
@@ -23,21 +23,21 @@ class Series(object):
     """
 
     def __init__(self, domain, comment=u''):
-        if not isinstance(domain, Range):
-            domain = Range(domain)
+        if not isinstance(domain, Interval):
+            domain = Interval(domain)
         self.domain = domain
         self.comment = comment
 
     def __getitem__(self, item):
         """
         Return a value for given index, or a subslice of this series
-        :param item: a float, or a slice, or a Range
+        :param item: a float, or a slice, or a Interval
         :return: Series instance or a value
         :raises NotInDomainError: index not in domain
         """
-        if isinstance(item, (Range, slice)):
+        if isinstance(item, (Interval, slice)):
             if isinstance(item, slice):
-                item = Range(item)
+                item = Interval(item)
 
             if item not in self.domain:
                 raise NotInDomainError('slicing beyond series domain')
@@ -80,7 +80,7 @@ class Series(object):
 
         points = list(sorted(points))
 
-        domain = domain or Range(points[0], points[-1], True, True)
+        domain = domain or Interval(points[0], points[-1], True, True)
 
         if domain not in self.domain:
             raise NotInDomainError('points not inside this series!')
@@ -120,7 +120,7 @@ class DiscreteSeries(Series):
         if len(data) == 0:
             domain = EMPTY_SET
         elif domain is None:
-            domain = Range(data[0][0], data[-1][0], True, True)
+            domain = Interval(data[0][0], data[-1][0], True, True)
 
         self.data = data
         super(DiscreteSeries, self).__init__(domain, *args, **kwargs)

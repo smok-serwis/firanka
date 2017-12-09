@@ -6,34 +6,45 @@ import math
 import six
 
 __all__ = [
-    'Range',
+    'Interval',
     'REAL_SET',
     'EMPTY_SET'
 ]
 
 
-def _pre_range(fun):  # for making sure that first argument gets parsed as a Range
+def _pre_range(fun):  # for making sure that first argument gets parsed as a Interval
     @six.wraps(fun)
     def inner(self, arg, *args, **kwargs):
-        if not isinstance(arg, Range):
-            arg = Range(arg)
+        if not isinstance(arg, Interval):
+            arg = Interval(arg)
         return fun(self, arg, *args, **kwargs)
 
     return inner
 
 
-class Range(object):
+class Interval(object):
     """
-    Range of real numbers. Immutable.
+    Interval of real numbers. Immutable.
     """
     __slots__ = ('start', 'stop', 'left_inc', 'right_inc')
+
+    @_pre_range
+    def __add__(self, other):
+        if self.start > other.start:
+            return other.__add__(self)
+
+        assert not (self.start > other.start)
+
+        if (self.stop == other.start) and (self.right_inc or other.left_inc):
+            return Interval(self.start, other.stop, self.right_inc, other.left_inc)
+
 
     def translate(self, x):
         if x == 0:
             return self
         else:
-            return Range(self.start + x, self.stop + x, self.left_inc,
-                         self.right_inc)
+            return Interval(self.start + x, self.stop + x, self.left_inc,
+                            self.right_inc)
 
     def __fromslice(self, rs):
         start = float('-inf') if rs.start is None else rs.start
@@ -55,7 +66,7 @@ class Range(object):
     def __getargs(self, args):
         if len(args) == 1:
             rs, = args
-            if isinstance(rs, Range):
+            if isinstance(rs, Interval):
                 args = self.__fromrange(rs)
             elif isinstance(rs, slice):
                 args = self.__fromslice(rs)
@@ -71,10 +82,10 @@ class Range(object):
         """
         Create like:
 
-        * Range('<a;b>')
-        * Range(a, b, is_left_closed_, is_right_closed)
-        * Range(a, b) - will have both sides closed, unless one is inf
-        * Range(slice(a, b)) - will have both sides closed, unless one is None
+        * Interval('<a;b>')
+        * Interval(a, b, is_left_closed_, is_right_closed)
+        * Interval(a, b) - will have both sides closed, unless one is inf
+        * Interval(slice(a, b)) - will have both sides closed, unless one is None
 
         :param args:
         """
@@ -90,12 +101,12 @@ class Range(object):
 
     def __contains__(self, x):
         """
-        :type x: index or a Range
+        :type x: index or a Interval
         """
         if isinstance(x, six.string_types):
-            x = Range(x)
+            x = Interval(x)
 
-        if isinstance(x, Range):
+        if isinstance(x, Interval):
             if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
                     or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
                 return False
@@ -118,7 +129,7 @@ class Range(object):
         return self.stop - self.start
 
     def __repr__(self):
-        return 'Range(%s, %s, %s, %s)' % (
+        return 'Interval(%s, %s, %s, %s)' % (
             repr(self.start), repr(self.stop), repr(self.left_inc),
             repr(self.right_inc))
 
@@ -126,7 +137,7 @@ class Range(object):
         if not isinstance(item, slice):
             raise ValueError('must be a slice')
 
-        return self.intersection(Range(item))
+        return self.intersection(Interval(item))
 
     def __str__(self):
         return '%s%s;%s%s' % (
@@ -164,7 +175,7 @@ class Range(object):
             stop = p.stop
             right_inc = p.right_inc and (stop in q)
 
-        return Range(start, stop, left_inc, right_inc)
+        return Interval(start, stop, left_inc, right_inc)
 
     @_pre_range
     def __eq__(self, other):
@@ -177,5 +188,5 @@ class Range(object):
         return hash(self.start) ^ hash(self.stop)
 
 
-EMPTY_SET = Range(0, 0, False, False)
-REAL_SET = Range(float('-inf'), float('+inf'), False, False)
+EMPTY_SET = Interval(0, 0, False, False)
+REAL_SET = Interval(float('-inf'), float('+inf'), False, False)
