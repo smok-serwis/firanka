@@ -28,6 +28,24 @@ class Interval(object):
     """
     __slots__ = ('start', 'stop', 'left_inc', 'right_inc')
 
+    def extend_to_point(self, p):
+        """
+        Return a minimally extended interval required to grab point p
+        :param p: a point, float
+        :return: new Interval
+        """
+        if p in self:
+            return self
+        elif self.is_empty():
+            return Interval(p, p)
+        else:
+            if p <= self.start:
+                return Interval(p, self.stop, not math.isinf(p), self.right_inc)
+            elif p >= self.stop:
+                return Interval(self.start, p, self.left_inc, not math.isinf(p))
+            else:
+                raise RuntimeError('Cannot happen!')
+
     @_pre_range
     def __add__(self, other):
         if self.start > other.start:

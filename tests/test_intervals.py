@@ -6,7 +6,7 @@ import unittest
 from firanka.intervals import Interval
 
 
-class TestRange(unittest.TestCase):
+class TestIntervals(unittest.TestCase):
     def do_intersect(self, a, b, val):
         if type(val) == bool:
             p = Interval(a).intersection(b)
@@ -51,6 +51,14 @@ class TestRange(unittest.TestCase):
 
         r = Interval(1, 2, True, False)
         self.assertEqual(r, Interval(r))
+
+    def test_extend(self):
+        i = Interval('(-1;1)')
+
+        self.assertEqual(i.extend_to_point(-1), '<-1;1)')
+        self.assertEqual(i.extend_to_point(1), '(-1;1>')
+        self.assertEqual(i.extend_to_point(float('inf')), '(-1;inf)')
+        self.assertEqual(i.extend_to_point(float('-inf')), '(-inf;1)')
 
     def test_contains(self):
         self.assertFalse(-1 in Interval('<-10;-1)'))

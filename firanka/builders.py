@@ -5,7 +5,6 @@ import copy
 
 from sortedcontainers import SortedList
 
-from .intervals import Interval
 from .series import DiscreteSeries
 
 """
@@ -21,7 +20,7 @@ class DiscreteSeriesBuilder(object):
     def __init__(self, series=None):
 
         if series is None:
-            series = DiscreteSeries([], '(0;0)')
+            series = DiscreteSeries([])
 
         if not isinstance(series, DiscreteSeries):
             raise TypeError('discrete knowledge builder supports only discrete series')
@@ -31,13 +30,7 @@ class DiscreteSeriesBuilder(object):
         self.series = series
 
     def put(self, index, value):
-
-        if index not in self.domain:
-            if index <= self.domain.start:
-                self.domain = Interval(index, self.domain.stop, True, self.domain.right_inc)
-            if index >= self.domain.stop:
-                self.domain = Interval(self.domain.start, index, self.domain.left_inc, True)
-
+        self.domain = self.domain.extend_to_point(index)
         self.new_data[index] = value
 
     def as_series(self):
