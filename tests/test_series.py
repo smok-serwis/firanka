@@ -4,7 +4,7 @@ from __future__ import print_function, absolute_import, division
 import math
 import unittest
 
-from firanka.exceptions import NotInDomainError
+from firanka.exceptions import NotInDomainError, DomainError
 from firanka.intervals import Interval
 from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
     LinearInterpolationSeries, Series
@@ -27,7 +27,7 @@ class TestDiscreteSeries(unittest.TestCase):
         a.join(b, lambda i, x, y: x + y)
 
     def test_uncov(self):
-        self.assertRaises(ValueError,
+        self.assertRaises(DomainError,
                           lambda: DiscreteSeries([[0, 0], [1, 1], [2, 2]],
                                                  '<-5;2>'))
 
@@ -124,7 +124,7 @@ class TestDiscreteSeries(unittest.TestCase):
 
     def test_discretize(self):
         # note the invalid data for covering this domain
-        self.assertRaises(ValueError, lambda: FunctionSeries(lambda x: x ** 2,
+        self.assertRaises(DomainError, lambda: FunctionSeries(lambda x: x ** 2,
                                                              '<-10;10)').discretize(
             [0, 1, 2, 3, 4, 5], '(-1;6)'))
 

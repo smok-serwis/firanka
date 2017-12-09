@@ -5,7 +5,7 @@ import inspect
 
 from sortedcontainers import SortedList
 
-from firanka.exceptions import NotInDomainError
+from firanka.exceptions import NotInDomainError, DomainError
 from firanka.intervals import Interval, EMPTY_SET
 
 
@@ -127,8 +127,7 @@ class DiscreteSeries(Series):
 
         if len(data) > 0:
             if self.domain.start < data[0][0]:
-                raise ValueError(
-                    'some domain space is not covered by definition!')
+                raise DomainError('some domain space is not covered by definition!')
 
     def apply(self, fun):
         assert _has_arguments(fun, 2), 'fun must have at least 2 arguments'

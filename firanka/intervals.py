@@ -117,27 +117,32 @@ class Interval(object):
 
         self.start, self.stop, self.left_inc, self.right_inc = args
 
+    def _contains_point(self, x):
+        if x == self.start:
+            return self.left_inc
+
+        if x == self.stop:
+            return self.right_inc
+
+        return self.start < x < self.stop
+
+    @_pre_range
+    def _contains_interval(self, x):
+        if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
+                or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
+            return False
+
+        return (x.start >= self.start) and (x.stop <= self.stop)
+
     def __contains__(self, x):
         """
         :type x: index or a Interval
         """
-        if isinstance(x, six.string_types):
-            x = Interval(x)
-
-        if isinstance(x, Interval):
-            if ((x.start == self.start) and (x.left_inc ^ self.left_inc)) \
-                    or ((x.stop == self.stop) and (x.right_inc ^ self.right_inc)):
-                return False
-
-            return (x.start >= self.start) and (x.stop <= self.stop)
+        if isinstance(x, six.string_types) or isinstance(x, Interval):
+            return self._contains_interval(x)
         else:
-            if x == self.start:
-                return self.left_inc
+            return self._contains_point(x)
 
-            if x == self.stop:
-                return self.right_inc
-
-            return self.start < x < self.stop
 
     def is_empty(self):
         return (self.start == self.stop) and not (
@@ -153,7 +158,7 @@ class Interval(object):
 
     def __getitem__(self, item):
         if not isinstance(item, slice):
-            raise ValueError('must be a slice')
+            raise TypeError('must be a slice')
 
         return self.intersection(Interval(item))
 
