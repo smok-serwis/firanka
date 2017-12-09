@@ -33,6 +33,11 @@ slice them and so on.
 Can be imported from _sai.series_. A generic abstract superclass for series - 
 `Series` can be imported for checking if given object is a series.
 
+Series are immutable, but non-hashable.
+
+Read the source code of the [base class](firanka/series/series.py#L11) to get
+to know more about series operations.
+
 ### DiscreteSeries
 
 To use a _DiscreteSeries_ you must give it a set of data to work with. These
@@ -114,6 +119,8 @@ Range's are immutable and hashable. They can be sliced:
 ```python
 Range('<-5;5>')[0:] == Range('<0;5>')
 ```
+
+Slices work as a both-sides-closed range if both sides are shown!
 
 You can check whether a range contains a point
 
