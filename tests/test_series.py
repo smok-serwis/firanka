@@ -79,6 +79,9 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply(lambda x: x+1)
         self.assertEquals(sa.data, [(0,1),(1,2),(2,3)])
 
+        sb = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply_with_indices(lambda k,v: k)
+        self.assertEquals(sb.data, [(0,0),(1,1),(2,2)])
+
     def test_eval3(self):
         sa = FunctionSeries(lambda x: x**2, '<-10;10)')
         sb = FunctionSeries(NOOP, '<0;2)')
@@ -126,6 +129,11 @@ class TestFunctionSeries(unittest.TestCase):
         series = FunctionSeries(NOOP, '<-5;5>').apply(lambda x: x*2)
 
         self.assertEqual(series.eval_points(PTS), [x*2 for x in PTS])
+
+        PTS = [-1,-2,-3,1,2,3]
+        series = FunctionSeries(NOOP, '<-5;5>').apply_with_indices(lambda k, x: k)
+
+        self.assertEqual(series.eval_points(PTS), [x for x in PTS])
 
     def test_domain_sensitivity(self):
         logs = FunctionSeries(math.log, '(0;5>')

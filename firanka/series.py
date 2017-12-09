@@ -9,6 +9,13 @@ import six
 from firanka.exceptions import NotInDomainError
 from firanka.ranges import Range, REAL_SET, EMPTY_SET
 
+__all__ = [
+    'FunctionSeries',
+    'DiscreteSeries',
+    'ModuloSeries',
+    'Series',
+]
+
 
 class Series(object):
     """
@@ -18,10 +25,11 @@ class Series(object):
     for minimum functionality
     """
 
-    def __init__(self, domain):
+    def __init__(self, domain, comment=u''):
         if not isinstance(domain, Range):
             domain = Range(domain)
         self.domain = domain
+        self.comment = comment
 
     def __getitem__(self, item):
         """
@@ -60,6 +68,14 @@ class Series(object):
         """
         Return this series with a function applied to each value
         :param fun: callable/1 => 1
+        :return: Series instance
+        """
+        return AppliedSeries(self, lambda k, v: fun(v))
+
+    def apply_with_indices(self, fun):
+        """
+        Return this series with a function applied to each value
+        :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
         return AppliedSeries(self, fun)
@@ -101,18 +117,19 @@ class Series(object):
 
 
 class AppliedSeries(Series):
-    def __init__(self, series, applyfun):
-        super(AppliedSeries, self).__init__(series.domain)
+    def __init__(self, series, applyfun, *args, **kwargs):
+        """:type applyfun: callable(float, v) -> any"""
+        super(AppliedSeries, self).__init__(series.domain, *args, **kwargs)
         self.fun = applyfun
         self.series = series
 
     def _get_for(self, item):
-        return self.fun(self.series._get_for(item))
+        return self.fun(item, self.series._get_for(item))
 
 
 class TranslatedSeries(Series):
-    def __init__(self, series, x):
-        super(TranslatedSeries, self).__init__(self.domain.translate(x))
+    def __init__(self, series, x, *args, **kwargs):
+        super(TranslatedSeries, self).__init__(self.domain.translate(x), *args, **kwargs)
         self.series = series
         self.x = x
 
@@ -121,8 +138,8 @@ class TranslatedSeries(Series):
 
 
 class SlicedSeries(Series):
-    def __init__(self, parent, domain):
-        super(SlicedSeries, self).__init__(domain)
+    def __init__(self, parent, domain, *args, **kwargs):
+        super(SlicedSeries, self).__init__(domain, *args, **kwargs)
         self.parent = parent
 
     def _get_for(self, item):
@@ -141,14 +158,14 @@ def _appendif(lst, ptr, v):
 
 class DiscreteSeries(Series):
 
-    def __init__(self, data, domain=None):
+    def __init__(self, data, domain=None, *args, **kwargs):
         if len(data) == 0:
             domain = EMPTY_SET
         elif domain is None:
             domain = Range(data[0][0], data[-1][0], True, True)
 
         self.data = data
-        super(DiscreteSeries, self).__init__(domain)
+        super(DiscreteSeries, self).__init__(domain, *args, **kwargs)
 
         if len(data) > 0:
             if self.domain.start < data[0][0]:
@@ -156,6 +173,9 @@ class DiscreteSeries(Series):
 
     def apply(self, fun):
         return DiscreteSeries([(k, fun(v)) for k, v in self.data], self.domain)
+
+    def apply_with_indices(self, fun):
+        return DiscreteSeries([(k, fun(k, v)) for k, v in self.data], self.domain)
 
     def _get_for(self, item):
         for k, v in reversed(self.data):
@@ -225,7 +245,6 @@ class DiscreteSeries(Series):
 
         return DiscreteSeries(c, new_domain)
 
-
     def compute(self):
         """Simplify self"""
         nd = [self.data[0]]
@@ -239,8 +258,8 @@ class FunctionSeries(Series):
     """
     Series with values defined by a function
     """
-    def __init__(self, fun, domain):
-        super(FunctionSeries, self).__init__(domain)
+    def __init__(self, fun, domain, *args, **kwargs):
+        super(FunctionSeries, self).__init__(domain, *args, **kwargs)
         self.fun = fun
 
     def _get_for(self, item):
@@ -251,9 +270,9 @@ class JoinedSeries(Series):
     """
     Series stemming from performing an operation on two series
     """
-    def __init__(self, ser1, ser2, op):
+    def __init__(self, ser1, ser2, op, *args, **kwargs):
         domain = ser1.domain.intersection(ser2.domain)
-        super(JoinedSeries, self).__init__(domain)
+        super(JoinedSeries, self).__init__(domain, *args, **kwargs)
         self.ser1 = ser1
         self.ser2 = ser2
         self.op = op
@@ -264,13 +283,13 @@ class JoinedSeries(Series):
 
 class ModuloSeries(Series):
 
-    def __init__(self, series):
+    def __init__(self, series, *args, **kwargs):
         """
         Construct a modulo series
         :param series: base series to use
         :raise ValueError: invalid domain length
         """
-        super(ModuloSeries, self).__init__(REAL_SET)
+        super(ModuloSeries, self).__init__(REAL_SET, *args, **kwargs)
 
         self.series = series
         self.period = self.series.domain.length()
