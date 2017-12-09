@@ -193,6 +193,16 @@ class TestModuloSeries(unittest.TestCase):
         self.assertEquals(series[5], 3)
         self.assertEquals(series[-1], 3)
 
+    def test_advanced(self):
+        series = ModuloSeries(DiscreteSeries([(-1, 1), (0, 2), (1, 3)], '<-1;2)'))
+
+        self.assertEqual(series.period, 3.0)
+
+        self.assertEqual(series.eval_points([-1,0,1]), [1,2,3])
+
+        self.assertEqual(series.eval_points([-5,-4,-3,-2,-1,0,1,2,3,4,5]),
+                                            [ 3, 1, 2, 3, 1,2,3,1,2,3,1])
+
     def test_comp_discrete(self):
         ser1 = ModuloSeries(FunctionSeries(lambda x: x ** 2, '<0;3)'))
         ser2 = FunctionSeries(NOOP, '<0;3)')
