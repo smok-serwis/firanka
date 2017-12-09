@@ -57,14 +57,6 @@ class Series(object):
     def apply(self, fun):
         """
         Return this series with a function applied to each value
-        :param fun: callable/1 => 1
-        :return: Series instance
-        """
-        return AlteredSeries(self, applyfun=lambda k, v: fun(v))
-
-    def apply_with_indices(self, fun):
-        """
-        Return this series with a function applied to each value
         :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
@@ -89,20 +81,10 @@ class Series(object):
 
     def join(self, series, fun):
         """
-        Return a new series with values of fun(v1, v2)
-
-        :param series: series to join against
-        :param fun: callable/2 => value
-        :return: new Series instance
-        """
-        return JoinedSeries(self, series, lambda t, v1, v2: fun(v1, v2))
-
-    def join_with_indices(self, series, fun):
-        """
         Return a new series with values of fun(index, v1, v2)
 
         :param series: series to join against
-        :param fun: callable/3 => value
+        :param fun: callable(t: float, v1: any, v2: any) => value
         :return: new Series instance
         """
         return JoinedSeries(self, series, fun)
@@ -135,13 +117,13 @@ class DiscreteSeries(Series):
                     'some domain space is not covered by definition!')
 
     def apply(self, fun):
-        return DiscreteSeries([(k, fun(v)) for k, v in self.data], self.domain)
-
-    def apply_with_indices(self, fun):
         return DiscreteSeries([(k, fun(k, v)) for k, v in self.data],
                               self.domain)
 
     def _get_for(self, item):
+        if item == self.data[0]:
+            return self.data[0][1]
+
         for k, v in reversed(self.data):
             if k <= item:
                 return v
@@ -191,10 +173,8 @@ class DiscreteSeries(Series):
 
         return DiscreteSeries(c, new_domain)
 
-    def join_discrete(self, series, fun):
-        return self.join_discrete_with_indices(series, lambda i, v1, v2: fun(v1, v2))
 
-    def join_discrete_with_indices(self, series, fun):
+    def join_discrete(self, series, fun):
         new_domain = self.domain.intersection(series.domain)
 
         if isinstance(series, DiscreteSeries):
@@ -256,6 +236,7 @@ class JoinedSeries(Series):
     """
 
     def __init__(self, ser1, ser2, op, *args, **kwargs):
+        """:type op: callable(time: float, v1, v2: any) -> v"""
         super(JoinedSeries, self).__init__(ser1.domain.intersection(ser2.domain), *args, **kwargs)
         self.ser1 = ser1
         self.ser2 = ser2

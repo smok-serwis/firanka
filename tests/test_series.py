@@ -24,7 +24,7 @@ class TestDiscreteSeries(unittest.TestCase):
         a = DiscreteSeries([(0,0), (1,0), (2,0)], '<0;5>')
         b = DiscreteSeries([(0,0), (1,0)], '<0;5>')
 
-        a.join(b, lambda x,y: x+y)
+        a.join(b, lambda i,x,y: x+y)
 
     def test_uncov(self):
         self.assertRaises(ValueError,
@@ -83,7 +83,7 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
         sb = DiscreteSeries([[0, 1], [1, 2], [2, 3]])
 
-        sc = sa.join_discrete(sb, lambda a, b: a + b)
+        sc = sa.join_discrete(sb, lambda i, a, b: a + b)
         self.assertIsInstance(sc, DiscreteSeries)
         self.assertEqual(sc.eval_points([0, 1, 2]), [1, 3, 5])
         self.assertEqual(sc.data, [(0, 1), (1, 3), (2, 5)])
@@ -92,7 +92,7 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
         sb = FunctionSeries(NOOP, '<0;2>')
 
-        sc = sa.join_discrete(sb, lambda a, b: a + b)
+        sc = sa.join_discrete(sb, lambda i, a, b: a + b)
         self.assertEqual(sc.eval_points([0, 1, 2]), [0, 2, 4])
 
         self.assertIsInstance(sc, DiscreteSeries)
@@ -100,16 +100,13 @@ class TestDiscreteSeries(unittest.TestCase):
 
     def test_eval2i(self):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
-        sc = sa.join_discrete_with_indices(HUGE_IDENTITY, lambda i, a, b: i)
+        sc = sa.join_discrete(HUGE_IDENTITY, lambda i, a, b: i)
         self.assertEqual(sc.eval_points([0, 1, 2]), [0, 1, 2])
         self.assertIsInstance(sc, DiscreteSeries)
         self.assertEqual(sc.data, [(0, 0), (1, 1), (2, 2)])
 
     def test_apply(self):
-        sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply(lambda x: x + 1)
-        self.assertEquals(sa.data, [(0, 1), (1, 2), (2, 3)])
-
-        sb = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply_with_indices(
+        sb = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply(
             lambda k, v: k)
         self.assertEquals(sb.data, [(0, 0), (1, 1), (2, 2)])
 
@@ -117,7 +114,7 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = FunctionSeries(lambda x: x ** 2, '<-10;10)')
         sb = FunctionSeries(NOOP, '<0;2)')
 
-        sc = sa.join(sb, lambda a, b: a * b)
+        sc = sa.join(sb, lambda i, a, b: a * b)
 
         PTS = [0, 1, 1.9]
         EPTS = [x * x ** 2 for x in PTS]
@@ -165,13 +162,7 @@ class TestFunctionSeries(unittest.TestCase):
 
     def test_apply(self):
         PTS = [-1, -2, -3, 1, 2, 3]
-        series = FunctionSeries(NOOP, '<-5;5>').apply(lambda x: x * 2)
-
-        self.assertEqual(series.eval_points(PTS), [x * 2 for x in PTS])
-
-        PTS = [-1, -2, -3, 1, 2, 3]
-        series = FunctionSeries(NOOP, '<-5;5>').apply_with_indices(
-            lambda k, x: k)
+        series = FunctionSeries(NOOP, '<-5;5>').apply(lambda k, x: k)
 
         self.assertEqual(series.eval_points(PTS), [x for x in PTS])
 
