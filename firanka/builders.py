@@ -11,10 +11,10 @@ Update knowledge of current discrete series
 """
 
 __all__ = [
-    'DiscreteKnowledgeBuilder',
+    'DiscreteSeriesBuilder',
 ]
 
-class DiscreteKnowledgeBuilder(object):
+class DiscreteSeriesBuilder(object):
     def __init__(self, series=None):
 
         if series is None:

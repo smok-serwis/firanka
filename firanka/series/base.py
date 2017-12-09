@@ -99,6 +99,10 @@ class Series(object):
 
 
 class DiscreteSeries(Series):
+    """
+    A series with lots of small rectangles interpolating something
+    """
+
     def __init__(self, data, domain=None, *args, **kwargs):
 
         data = SortedList(data)

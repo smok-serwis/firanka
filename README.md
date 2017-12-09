@@ -109,6 +109,13 @@ and will do classical linear interpolation.
 They can either utilize an existing discrete series, or be created just as
 any other discrete series would be.
 
+## Builders
+
+## DiscreteSeriesBuilder
+
+Sometimes you just need to update a DiscreteSeries, or to blang a brand new one. This little fella
+will help you out.
+
 ## Ranges
 
 Can be imported from _sai.ranges_.
