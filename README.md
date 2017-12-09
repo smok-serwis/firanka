@@ -149,9 +149,3 @@ Or you can check for strict inclusion
 ```python
 Range('<-1;1>') in Range('<-2;2>')
 ```
-
-## TimeProviders
-
-**EXPERIMENTAL**
-
-Can be imported from _sai.timeproviders_.
