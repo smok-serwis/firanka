@@ -28,6 +28,7 @@ class TestRange(unittest.TestCase):
         self.do_intersect('<-10;-1)', '<-1;1>', True)
         self.do_intersect('<-10;-1)', '(-1;3>', True)
         self.do_intersect('<-10;2)', '<1;5>', '<1;2)')
+        self.do_intersect('<-5;5>', '(-5;5)', '(-5;5)')
 
     def test_str_and_repr_and_bool(self):
         p = Range(-1,1,True,True)

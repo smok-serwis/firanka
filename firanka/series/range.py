@@ -107,14 +107,14 @@ class Range(object):
 
         if self.start == y.start:
             start = self.start
-            left_inc = self.left_inc or y.left_inc
+            left_inc = self.left_inc and y.left_inc
         else:
             start = y.start
             left_inc = y.left_inc
 
         if self.stop == y.stop:
             stop = self.stop
-            right_inc = self.right_inc or y.right_inc
+            right_inc = self.right_inc and y.right_inc
         else:
             p, q = (self, y) if self.stop < y.stop else (y, self)
             stop = p.stop

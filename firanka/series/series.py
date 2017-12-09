@@ -10,6 +10,12 @@ from .exceptions import NotInDomainError
 
 
 class Series(object):
+    """
+    Abstract, base class for series.
+
+    Your series needs to override just _get_for(x: float) -> v
+    for minimum functionality
+    """
 
     def __init__(self, domain):
         if not isinstance(domain, Range):
@@ -39,7 +45,7 @@ class Series(object):
             return self._get_for(item)
 
     def _get_for(self, item):
-        raise NotImplementedError
+        raise NotImplementedError('This is abstract, override me!')
 
     def eval_points(self, points):
         """

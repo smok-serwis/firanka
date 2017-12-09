@@ -32,6 +32,11 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertEqual(s[3.5], 0)
         self.assertEqual(s[4], 1)
 
+    def test_slice_outdomain(self):
+        series = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
+
+        self.assertRaises(NotInDomainError, lambda: series[-1:2])
+
     def test_slice(self):
         series = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
 
@@ -88,6 +93,9 @@ class TestDiscreteSeries(unittest.TestCase):
         sa = FunctionBasedSeries(lambda x: x**2, '<-10;10)').discretize(PTS)
         self.assertIsInstance(sa, DiscreteSeries)
         self.assertEqual(sa.data, [(i, i**2) for i in PTS])
+
+        empty = FunctionBasedSeries(lambda x: x**2, '<-10;10)').discretize([])
+        self.assertTrue(empty.domain.is_empty())
 
 class TestFunctionBasedSeries(unittest.TestCase):
     def test_slice(self):
