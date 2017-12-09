@@ -128,6 +128,16 @@ class SlicedSeries(Series):
         return self.parent._get_for(item)
 
 
+def _appendif(lst, ptr, v):
+    if len(lst) > 0:
+        assert lst[-1][0] <= ptr
+        if lst[-1][0] == ptr:
+            return  # same ptr as before? Not required.
+        if lst[-1][1] == v:
+            return  # same value as before? Redundant
+    lst.append((ptr, v))
+
+
 class DiscreteSeries(Series):
 
     def __init__(self, data, domain=None):
@@ -152,71 +162,64 @@ class DiscreteSeries(Series):
     def translate(self, x):
         return DiscreteSeries([(k+x, v) for k, v in self.data], self.domain.translate(x))
 
+    def _join_discrete_other_discrete(self, series, fun):
+        new_domain = self.domain.intersection(series.domain)
+
+        assert isinstance(series, DiscreteSeries)
+
+        a = self.data[::-1]
+        b = series.data[::-1]
+
+        ptr = self.domain.start
+        c = [(ptr, fun(self._get_for(ptr), series._get_for(ptr)))]
+
+        while len(a) > 0 and len(b) > 0:
+            if a[-1] < b[-1]:
+                ptr, v1 = a.pop()
+                v2 = series._get_for(ptr)
+            elif a[-1] > b[-1]:
+                ptr, v1 = b.pop()
+                v2 = self._get_for(ptr)
+            else:
+                ptr, v1 = a.pop()
+                _, v2 = b.pop()
+
+            _appendif(c, ptr, fun(v1, v2))
+
+        if len(a) > 0 or len(b) > 0:
+            if len(a) > 0:
+                rest = a
+                static_v = series._get_for(ptr)
+                op = lambda me, const: fun(me, const)
+            else:
+                rest = b
+                static_v = self._get_for(ptr)
+                op = lambda me, const: fun(const, me)
+
+            for ptr, v in rest:
+                _appendif(c, ptr, op(v, static_v))
+
+        return DiscreteSeries(c, new_domain)
+
     def join_discrete(self, series, fun):
         new_domain = self.domain.intersection(series.domain)
 
         if isinstance(series, DiscreteSeries):
-            a = self.data[::-1]
-            b = series.data[::-1]
+            return self._join_discrete_other_discrete(series, fun)
 
-            ptr = self.domain.start
-            c = [(ptr, fun(self._get_for(ptr), series._get_for(ptr)))]
-
-            def appendif(lst, ptr, v):
-                if len(lst) > 0:
-                    if lst[-1][0] >= ptr:
-                        return
-                lst.append((ptr, v))
-
-            while len(a) > 0 or len(b) > 0:
-                if len(a) > 0 and len(b) > 0:
-                    if a[-1] < b[-1]:
-                        ptr, v1 = a.pop()
-                        v2 = series._get_for(ptr)
-                    elif a[-1] > b[-1]:
-                        ptr, v1 = b.pop()
-                        v2 = self._get_for(ptr)
-                    else:
-                        ptr, v1 = a.pop()
-                        _, v2 = b.pop()
-
-                    assert ptr >= c[-1][0]
-
-                    appendif(c, ptr, fun(v1, v2))
-
-                else:
-                    if len(a) > 0:
-                        rest = a
-                        static_v = series._get_for(ptr)
-                        op = lambda me, const: fun(me, const)
-                    else:
-                        rest = b
-                        static_v = self._get_for(ptr)
-                        op = lambda me, const: fun(const, me)
-
-                    for ptr, v in rest:
-                        appendif(c, ptr, op(v, static_v))
-
-                    break
+        if new_domain.start > self.data[0][0]:
+            c = [(new_domain.start, fun(self._get_for(new_domain.start), series._get_for(new_domain.start)))]
         else:
-            if new_domain.start > self.data[0][0]:
-                c = [(new_domain.start, fun(self._get_for(new_domain.start), series._get_for(new_domain.start)))]
-            else:
-                c = []
+            c = []
 
-            for k, v in ((k, v) for k, v in self.data if new_domain.start <= k <= new_domain.stop):
-                newv = fun(v, series._get_for(k))
+        for k, v in ((k, v) for k, v in self.data if new_domain.start <= k <= new_domain.stop):
+            _appendif(c, k, fun(v, series._get_for(k)))
 
-                if len(c) > 0:
-                    if c[-1][1] == newv:
-                        continue
-
-                c.append((k, newv))
-
-            if c[-1][0] != new_domain.stop:
-                c.append((new_domain.stop, fun(self._get_for(new_domain.stop), series._get_for(new_domain.stop))))
+        if c[-1][0] != new_domain.stop:
+            c.append((new_domain.stop, fun(self._get_for(new_domain.stop), series._get_for(new_domain.stop))))
 
         return DiscreteSeries(c, new_domain)
+
 
     def compute(self):
         """Simplify self"""
