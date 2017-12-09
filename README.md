@@ -27,6 +27,45 @@ slice them and so on.
 
 
 # Usage
+
+## Series
+
+### DiscreteSeries
+
+To use a _DiscreteSeries_ you must give it a set of data to work with. These
+will define intervals, left-closed, right-open. Ie. 
+
+
+```python
+fs = DiscreteSeries([(0,1), (3, 4), (5, 6)])
+fs[0.5] == 1
+fs[3] == 4
+fs[5] == 6
+# fs[6] - NotInDomainError's
+```
+
+Datapoints given **must be already sorted**!. By default, the domain
+will be both sides closed, from minimum to maximum given in data, but you can
+specify a custom one:
+
+```python
+fs = DiscreteSeries([(0,1), (3, 4), (5, 6)], '(0; 8>')
+# fs[0] - NotInDomainError's !
+fs[6] == 6
+```
+
+Although you can't specify a domain where it would be impossible to compute the value.
+(ie. starting at smaller than zero). Doing so will throw a _ValueError_.
+
+### FunctionSeries
+
+Using _FunctionSeries_ is straightforward. Just give them a callable and
+a domain:
+
+```python
+fs = FunctionSeries(lambda x: x**2, '<-2;2>')
+```
+
 ## Ranges
 
 ```python

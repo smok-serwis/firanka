@@ -149,6 +149,11 @@ class DiscreteSeries(Series):
         self.data = data
         super(DiscreteSeries, self).__init__(domain)
 
+        if len(data) > 0:
+            if self.domain.start < data[0][0]:
+                raise ValueError('some domain space is not covered by definition!')
+
+
     def apply(self, fun):
         return DiscreteSeries([(k, fun(v)) for k, v in self.data], self.domain)
 

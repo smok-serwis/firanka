@@ -7,6 +7,9 @@ from firanka.series import DiscreteSeries, FunctionSeries, Range, ModuloSeries, 
 
 class TestDiscreteSeries(unittest.TestCase):
 
+    def test_uncov(self):
+        self.assertRaises(ValueError, lambda: DiscreteSeries([[0,0], [1,1], [2,2]], '<-5;2>'))
+
     def test_base(self):
         s = DiscreteSeries([[0,0], [1,1], [2,2]])
 
@@ -85,8 +88,12 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertTrue(Range('<0;2)') in sc.domain)
 
     def test_discretize(self):
-        PTS = [0,1,2,3,4,5]
+        # note the invalid data for covering this domain
+        self.assertRaises(ValueError, lambda: FunctionSeries(lambda x: x**2, '<-10;10)').discretize([0,1,2,3,4,5], '(-1;6)'))
+
+        PTS = [-1, 0,1,2,3,4,5]
         sa = FunctionSeries(lambda x: x**2, '<-10;10)').discretize(PTS, '(-1;6)')
+
         self.assertIsInstance(sa, DiscreteSeries)
         self.assertEqual(sa.data, [(i, i**2) for i in PTS])
 
