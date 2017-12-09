@@ -29,8 +29,11 @@ class Range(object):
     """
 
     def translate(self, x):
-        return Range(self.start + x, self.stop + x, self.left_inc,
-                     self.right_inc)
+        if x == 0:
+            return self
+        else:
+            return Range(self.start + x, self.stop + x, self.left_inc,
+                         self.right_inc)
 
     def __init__(self, *args):
         """

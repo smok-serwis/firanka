@@ -35,8 +35,7 @@ class Series(object):
             if item not in self.domain:
                 raise NotInDomainError('slicing beyond series domain')
 
-            newdom = self.domain.intersection(item)
-            return SlicedSeries(self, newdom)
+            return AlteredSeries(self, domain=self.domain.intersection(item))
         else:
             if item not in self.domain:
                 raise NotInDomainError('item not in domain')
@@ -60,7 +59,7 @@ class Series(object):
         :param fun: callable/1 => 1
         :return: Series instance
         """
-        return AppliedAndTranslatedSeries(self, applyfun=lambda k, v: fun(v))
+        return AlteredSeries(self, applyfun=lambda k, v: fun(v))
 
     def apply_with_indices(self, fun):
         """
@@ -68,7 +67,7 @@ class Series(object):
         :param fun: callable(index: float, value: any) => 1
         :return: Series instance
         """
-        return AppliedAndTranslatedSeries(self, applyfun=fun)
+        return AlteredSeries(self, applyfun=fun)
 
     def discretize(self, points, domain=None):
         """
@@ -95,6 +94,16 @@ class Series(object):
         :param fun: callable/2 => value
         :return: new Series instance
         """
+        return JoinedSeries(self, series, lambda t, v1, v2: fun(v1, v2))
+
+    def join_with_indices(self, series, fun):
+        """
+        Return a new series with values of fun(index, v1, v2)
+
+        :param series: series to join against
+        :param fun: callable/3 => value
+        :return: new Series instance
+        """
         return JoinedSeries(self, series, fun)
 
     def translate(self, x):
@@ -103,7 +112,7 @@ class Series(object):
         :param x: a float
         :return: new Series instance
         """
-        return AppliedAndTranslatedSeries(self, x=x)
+        return AlteredSeries(self, x=x)
 
 
 class DiscreteSeries(Series):
@@ -148,7 +157,7 @@ class DiscreteSeries(Series):
         b = series.data[::-1]
 
         ptr = self.domain.start
-        c = [(ptr, fun(self._get_for(ptr), series._get_for(ptr)))]
+        c = [(ptr, fun(ptr, self._get_for(ptr), series._get_for(ptr)))]
 
         while len(a) > 0 and len(b) > 0:
             if a[-1] < b[-1]:
@@ -161,73 +170,70 @@ class DiscreteSeries(Series):
                 ptr, v1 = a.pop()
                 _, v2 = b.pop()
 
-            _appendif(c, ptr, fun(v1, v2))
+            _appendif(c, ptr, fun(ptr, v1, v2))
 
         if len(a) > 0 or len(b) > 0:
             if len(a) > 0:
                 rest = a
                 static_v = series._get_for(ptr)
-                op = lambda me, const: fun(me, const)
+                op = lambda ptr, me, const: fun(ptr, me, const)
             else:
                 rest = b
                 static_v = self._get_for(ptr)
-                op = lambda me, const: fun(const, me)
+                op = lambda ptr, me, const: fun(ptr, const, me)
 
             for ptr, v in rest:
-                _appendif(c, ptr, op(v, static_v))
+                _appendif(c, ptr, op(ptr, v, static_v))
 
         return DiscreteSeries(c, new_domain)
 
     def join_discrete(self, series, fun):
+        return self.join_discrete_with_indices(series, lambda i, v1, v2: fun(v1, v2))
+
+    def join_discrete_with_indices(self, series, fun):
         new_domain = self.domain.intersection(series.domain)
 
         if isinstance(series, DiscreteSeries):
             return self._join_discrete_other_discrete(series, fun)
 
         if new_domain.start > self.data[0][0]:
-            c = [(new_domain.start, fun(self._get_for(new_domain.start),
+            c = [(new_domain.start, fun(new_domain.start,
+                                        self._get_for(new_domain.start),
                                         series._get_for(new_domain.start)))]
         else:
             c = []
 
         for k, v in ((k, v) for k, v in self.data if
                      new_domain.start <= k <= new_domain.stop):
-            _appendif(c, k, fun(v, series._get_for(k)))
+            _appendif(c, k, fun(k, v, series._get_for(k)))
 
         if c[-1][0] != new_domain.stop:
-            c.append((new_domain.stop, fun(self._get_for(new_domain.stop),
+            c.append((new_domain.stop, fun(new_domain.stop,
+                                           self._get_for(new_domain.stop),
                                            series._get_for(new_domain.stop))))
 
         return DiscreteSeries(c, new_domain)
 
-    def compute(self):
-        """Simplify self"""
-        nd = [self.data[0]]
-        for i in six.moves.range(1, len(self.data)):
-            if self.data[i][1] != nd[-1][1]:
-                nd.append(self.data[i])
-        return DiscreteSeries(nd, self.domain)
 
-
-class AppliedAndTranslatedSeries(Series):
-    def __init__(self, series, applyfun=lambda k,v: v, x=0, *args, **kwargs):
-        """:type applyfun: callable(float, v) -> any"""
-        super(AppliedAndTranslatedSeries, self).__init__(series.domain.translate(x), *args, **kwargs)
+class AlteredSeries(Series):
+    """
+    Internal use - for applyings, translations and slicing
+    """
+    def __init__(self, series, domain=None, applyfun=lambda k,v: v, x=0, *args, **kwargs):
+        """
+        :param series: original series
+        :param domain: new domain to use [if sliced]
+        :param applyfun: (index, v) -> newV [if applied]
+        :param x: translation vector [if translated]
+        """
+        domain = domain or series.domain
+        super(AlteredSeries, self).__init__(domain.translate(x), *args, **kwargs)
         self.fun = applyfun
         self.series = series
         self.x = x
 
     def _get_for(self, item):
         return self.fun(item, self.series._get_for(item + self.x))
-
-
-class SlicedSeries(Series):
-    def __init__(self, parent, domain, *args, **kwargs):
-        super(SlicedSeries, self).__init__(domain, *args, **kwargs)
-        self.parent = parent
-
-    def _get_for(self, item):
-        return self.parent._get_for(item)
 
 
 def _appendif(lst, ptr, v):
@@ -246,11 +252,10 @@ class JoinedSeries(Series):
     """
 
     def __init__(self, ser1, ser2, op, *args, **kwargs):
-        domain = ser1.domain.intersection(ser2.domain)
-        super(JoinedSeries, self).__init__(domain, *args, **kwargs)
+        super(JoinedSeries, self).__init__(ser1.domain.intersection(ser2.domain), *args, **kwargs)
         self.ser1 = ser1
         self.ser2 = ser2
         self.op = op
 
     def _get_for(self, item):
-        return self.op(self.ser1._get_for(item), self.ser2._get_for(item))
+        return self.op(item, self.ser1._get_for(item), self.ser2._get_for(item))

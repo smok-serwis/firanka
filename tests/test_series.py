@@ -11,6 +11,7 @@ from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
 
 NOOP = lambda x: x
 
+HUGE_IDENTITY = FunctionSeries(NOOP, '(-inf;inf)')
 
 class TestBase(unittest.TestCase):
     def test_abstract(self):
@@ -97,6 +98,13 @@ class TestDiscreteSeries(unittest.TestCase):
         self.assertIsInstance(sc, DiscreteSeries)
         self.assertEqual(sc.data, [(0, 0), (1, 2), (2, 4)])
 
+    def test_eval2i(self):
+        sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]])
+        sc = sa.join_discrete_with_indices(HUGE_IDENTITY, lambda i, a, b: i)
+        self.assertEqual(sc.eval_points([0, 1, 2]), [0, 1, 2])
+        self.assertIsInstance(sc, DiscreteSeries)
+        self.assertEqual(sc.data, [(0, 0), (1, 1), (2, 2)])
+
     def test_apply(self):
         sa = DiscreteSeries([[0, 0], [1, 1], [2, 2]]).apply(lambda x: x + 1)
         self.assertEquals(sa.data, [(0, 1), (1, 2), (2, 3)])
@@ -173,6 +181,7 @@ class TestFunctionSeries(unittest.TestCase):
 
         self.assertRaises(ValueError,
                           lambda: dirs.join_discrete(logs, lambda x, y: x + y))
+
 
 
 class TestModuloSeries(unittest.TestCase):
