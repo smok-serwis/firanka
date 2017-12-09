@@ -52,6 +52,21 @@ class Range(object):
         start, stop = rs[1:-1].split(';')
         return float(start), float(stop), rs[0] == '<', rs[-1] == '>'
 
+    def __getargs(self, args):
+        if len(args) == 1:
+            rs, = args
+            if isinstance(rs, type(self)):
+                args = self.__fromrange(rs)
+            elif isinstance(rs, slice):
+                args = self.__fromslice(rs)
+            else:
+                args = self.__fromstr(rs)
+        elif len(args) == 2:
+            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(
+                args[1])
+
+        return args
+
     def __init__(self, *args):
         """
         Create like:
@@ -63,20 +78,8 @@ class Range(object):
 
         :param args:
         """
-        if len(args) == 1:
-            rs, = args
-            if isinstance(rs, type(self)):
-                args = self.__fromrange(rs)
-            elif isinstance(rs, slice):
-                args = self.__fromslice(rs)
-            else:
-                args = self.__fromstr(rs)
-
-        elif len(args) == 2:
-            args = args[0], args[1], not math.isinf(args[0]), not math.isinf(args[1])
-
+        args = self.__getargs(args)
         q = lambda a, b, args: args[a] and math.isinf(args[b])
-
         if q(2, 0, args) or q(3, 1, args):
             raise ValueError('Set with sharp closing but infinity set')
 
