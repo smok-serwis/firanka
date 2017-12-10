@@ -7,11 +7,8 @@ import unittest
 from firanka.exceptions import NotInDomainError, DomainError
 from firanka.intervals import Interval
 from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
-    LinearInterpolationSeries, Series, SeriesBundle
-
-NOOP = lambda x: x
-
-HUGE_IDENTITY = FunctionSeries(NOOP, '(-inf;inf)')
+    LinearInterpolationSeries, Series
+from .common import NOOP, HUGE_IDENTITY
 
 
 class TestBase(unittest.TestCase):
@@ -230,14 +227,3 @@ class TestLinearInterpolation(unittest.TestCase):
     def test_conf(self):
         self.assertRaises(TypeError, lambda: LinearInterpolationSeries(
             FunctionSeries(NOOP, '<0;3)')))
-
-
-class TestBundles(unittest.TestCase):
-    def test_base(self):
-        s = SeriesBundle(
-            DiscreteSeries([(0, 1), (1, 1), (2, 1)], '<0;inf)'),
-            DiscreteSeries([(0, 2), (1, 2), (2, 2), (3, 4)], '<0;inf)'),
-        )
-
-        self.assertEqual(s[0], [1, 2])
-        self.assertEqual(s[3], [1, 4])
