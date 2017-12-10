@@ -46,7 +46,7 @@ class Series(object):
             return self._get_for(item)
 
     def _get_for(self, item):
-        raise NotImplementedError('This is abstract, override me!')
+        raise NotImplementedError(u'This is abstract, override me!')
 
     def eval_points(self, points):
         """
@@ -90,7 +90,7 @@ class Series(object):
         :param fun: callable(t: float, v1: any, v2: any) => value
         :return: new Series instance
         """
-        assert _has_arguments(fun, 3), 'Callable to join needs 3 arguments'
+        assert _has_arguments(fun, 3), u'Callable to join needs 3 arguments'
 
         return JoinedSeries(self, series, fun)
 
@@ -122,10 +122,10 @@ class DiscreteSeries(Series):
 
         if len(data) > 0:
             if self.domain.start < data[0][0]:
-                raise DomainError('some domain space is not covered by definition!')
+                raise DomainError(u'some domain space is not covered by definition!')
 
     def apply(self, fun):
-        assert _has_arguments(fun, 2), 'fun must have at least 2 arguments'
+        assert _has_arguments(fun, 2), u'fun must have at least 2 arguments'
 
         return DiscreteSeries([(k, fun(k, v)) for k, v in self.data],
                               self.domain)
@@ -138,7 +138,7 @@ class DiscreteSeries(Series):
             if k <= item:
                 return v
 
-        raise RuntimeError('should never happen')
+        raise RuntimeError(u'should never happen')
 
     def translate(self, x):
         return DiscreteSeries([(k + x, v) for k, v in self.data],
@@ -198,7 +198,7 @@ class DiscreteSeries(Series):
         :param fun:
         :return:
         """
-        assert _has_arguments(fun, 3), 'fun must have at least 3 arguments!'
+        assert _has_arguments(fun, 3), u'fun must have at least 3 arguments!'
 
         new_domain = self.domain.intersection(series.domain)
 
@@ -261,7 +261,7 @@ class JoinedSeries(Series):
 
     def __init__(self, ser1, ser2, op, *args, **kwargs):
         """:type op: callable(time: float, v1, v2: any) -> v"""
-        assert _has_arguments(op, 3), 'op must have 3 arguments'
+        assert _has_arguments(op, 3), u'op must have 3 arguments'
 
         super(JoinedSeries, self).__init__(ser1.domain.intersection(ser2.domain), *args, **kwargs)
         self.ser1 = ser1

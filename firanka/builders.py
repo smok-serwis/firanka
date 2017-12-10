@@ -23,7 +23,7 @@ class DiscreteSeriesBuilder(object):
             series = DiscreteSeries([])
 
         if not isinstance(series, DiscreteSeries):
-            raise TypeError('discrete knowledge builder supports only discrete series')
+            raise TypeError(u'discrete knowledge builder supports only discrete series')
 
         self.new_data = {}
         self.domain = series.domain

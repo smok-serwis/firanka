@@ -24,6 +24,6 @@ class NotInDomainError(DomainError):
     """
 
     def __init__(self, index, domain):
-        super(NotInDomainError, self).__init__('NotInDomainError: %s not in %s' % (index, domain))
+        super(NotInDomainError, self).__init__(u'NotInDomainError: %s not in %s' % (index, domain))
         self.index = index
         self.domain = domain

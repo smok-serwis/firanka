@@ -7,7 +7,7 @@ import unittest
 from firanka.exceptions import NotInDomainError, DomainError
 from firanka.intervals import Interval
 from firanka.series import DiscreteSeries, FunctionSeries, ModuloSeries, \
-    LinearInterpolationSeries, Series
+    LinearInterpolationSeries, Series, SeriesBundle
 
 NOOP = lambda x: x
 
@@ -125,7 +125,7 @@ class TestDiscreteSeries(unittest.TestCase):
     def test_discretize(self):
         # note the invalid data for covering this domain
         self.assertRaises(DomainError, lambda: FunctionSeries(lambda x: x ** 2,
-                                                             '<-10;10)').discretize(
+                                                              '<-10;10)').discretize(
             [0, 1, 2, 3, 4, 5], '(-1;6)'))
 
         self.assertRaises(NotInDomainError, lambda: FunctionSeries(lambda x: x ** 2,
@@ -230,3 +230,14 @@ class TestLinearInterpolation(unittest.TestCase):
     def test_conf(self):
         self.assertRaises(TypeError, lambda: LinearInterpolationSeries(
             FunctionSeries(NOOP, '<0;3)')))
+
+
+class TestBundles(unittest.TestCase):
+    def test_base(self):
+        s = SeriesBundle(
+            DiscreteSeries([(0, 1), (1, 1), (2, 1)], '<0;inf)'),
+            DiscreteSeries([(0, 2), (1, 2), (2, 2), (3, 4)], '<0;inf)'),
+        )
+
+        self.assertEqual(s[0], [1, 2])
+        self.assertEqual(s[3], [1, 4])
