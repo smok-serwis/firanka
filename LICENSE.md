@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2017 P.W. DMS s.c.
+Copyright (c) 2017-2018 P.W. DMS s.c.
+Copyright (c) 2018-2020 Piotr Maślanka
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

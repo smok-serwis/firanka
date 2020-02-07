@@ -1,6 +1,3 @@
-# coding=UTF-8
-from __future__ import absolute_import
-
 from .base import DiscreteSeries, Series
 from .bundle import SeriesBundle, DiscreteSeriesBundle
 from .function import FunctionSeries

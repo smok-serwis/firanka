@@ -1,10 +1,6 @@
-# coding=UTF-8
-from __future__ import print_function, absolute_import, division
 
 import math
-
-import six
-
+import functools
 from .exceptions import NotInDomainError
 
 __all__ = [
@@ -15,7 +11,7 @@ __all__ = [
 
 
 def _pre_range(fun):  # for making sure that first argument gets parsed as a Interval
-    @six.wraps(fun)
+    @functools.wraps(fun)
     def inner(self, arg, *args, **kwargs):
         if not isinstance(arg, Interval):
             arg = Interval(arg)

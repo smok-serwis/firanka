@@ -7,10 +7,14 @@ setup(
     name='firanka',
     version=__version__,
     packages=find_packages(exclude=['tests.*', 'tests']),
-    tests_require=["nose", 'coverage>=4.0,<4.4'],
     install_requires=open('requirements.txt', 'r').readlines(),
-    test_suite='nose.collector',
     url='https://github.com/smok-serwis/firanka',
     author=u'Piotr Maślanka',
-    author_email=u'piotrm@dms-serwis.com.pl',
+    author_email=u'pmaslanka@smok.co',
+    tests_require=[
+        "nose2", "mock", "coverage", "nose2[coverage_plugin]"
+    ],
+    test_suite='nose2.collector.collector',
+    python_requires='!=2.7.*,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
+
 )
