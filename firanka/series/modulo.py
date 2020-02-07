@@ -1,5 +1,3 @@
-
-
 import math
 
 from .base import Series

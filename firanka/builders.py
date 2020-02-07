@@ -1,5 +1,3 @@
-
-
 import copy
 
 from sortedcontainers import SortedList
