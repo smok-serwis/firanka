@@ -42,7 +42,6 @@ class Series:
             self.domain.contains_or_fail(item)
             return self._get_for(item)
 
-    @abstractmethod
     def _get_for(self, item):
         raise NotImplementedError(u'This is abstract, override me!')
 
