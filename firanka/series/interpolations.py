@@ -1,7 +1,3 @@
-
-
-import six
-
 from .base import DiscreteSeries, Series
 
 
@@ -38,7 +34,7 @@ class LinearInterpolationSeries(DiscreteSeries):
         if len(self.data) == 1:
             return super(LinearInterpolationSeries, self).__getitem__(item)
 
-        for i in six.moves.range(0, len(self.data) - 1):
+        for i in range(0, len(self.data) - 1):
             cur_i, cur_v = self.data[i]
             next_i, next_v = self.data[i + 1]
 

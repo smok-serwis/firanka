@@ -136,7 +136,7 @@ class Interval(object):
         """
         :type x: index or a Interval
         """
-        if isinstance(x, six.string_types) or isinstance(x, Interval):
+        if isinstance(x, str) or isinstance(x, Interval):
             return self._contains_interval(x)
         else:
             return self._contains_point(x)
