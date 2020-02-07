@@ -1,6 +1,13 @@
 [run]
 branch=1
-include=
-  firanka/*
 omit=
-  tests/*
+    tests/*
+    docs/*
+
+[paths]
+source =
+    firanka/*
+
+[report]
+include=
+    firanka/*
