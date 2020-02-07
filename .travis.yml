@@ -6,11 +6,15 @@ python:
  - "3.8"
  - "nightly"
  - "pypy3"
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 install:
- - pip install -r requirements.txt
- - pip install --force-reinstall "coverage>=4.0,<4.4" codeclimate-test-reporter
+  - pip install -r requirements.txt
+  - pip install nose2 mock coverage
 script:
- - python setup.py test
- - python setup.py sdist bdist bdist_wheel
+  - bash tests/test_posix/test_hang_until_sig.sh
+  - coverage run -m nose2
 after_success:
- - codeclimate-test-reporter
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT

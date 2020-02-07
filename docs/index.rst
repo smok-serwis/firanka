@@ -10,6 +10,7 @@ Welcome to firanka's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   series
 
 
 Indices and tables

@@ -1,5 +1,3 @@
-
-
 import inspect
 
 from sortedcontainers import SortedList
@@ -13,7 +11,7 @@ def _has_arguments(fun, n):  # used only in assert clauses
     return len(inspect.getargspec(fun).args) >= n
 
 
-class Series(object):
+class Series:
     """
     Abstract, base class for series.
 
@@ -44,6 +42,7 @@ class Series(object):
             self.domain.contains_or_fail(item)
             return self._get_for(item)
 
+    @abstractmethod
     def _get_for(self, item):
         raise NotImplementedError(u'This is abstract, override me!')
 
