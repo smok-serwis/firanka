@@ -19,7 +19,7 @@ class SeriesBundle(Series):
                                   (p.domain for p in series),
                                   REAL_SET)
 
-        super(SeriesBundle, self).__init__(domain)
+        super().__init__(domain)
 
         self.series = series
 
@@ -32,7 +32,7 @@ class DiscreteSeriesBundle(SeriesBundle):
         """
         :raise TypeError: if not all series are discrete
         """
-        super(DiscreteSeriesBundle, self).__init__(*series)
+        super().__init__(*series)
 
         if any((not isinstance(s, DiscreteSeries)) for s in series):
             raise TypeError('All series must be discrete')
@@ -57,6 +57,6 @@ class DiscreteSeriesBundle(SeriesBundle):
             if len(data) > 0 and data[-1][1] == v:
                 continue
             else:
-                data.append((k, v))
+                data.add((k, v))
 
         return DiscreteSeries([(k, self._get_for(k)) for k in keys], self.domain)

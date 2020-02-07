@@ -43,7 +43,7 @@ class DiscreteSeriesBuilder(object):
         for k, v in self.series.data:
             if k in cp_new_data:
                 v = cp_new_data.pop(k)
-            new_data.append((k, v))
+            new_data.add((k, v))
 
         # Add those that remained
         for k, v in cp_new_data.items():
