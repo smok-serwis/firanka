@@ -11,16 +11,11 @@ Base domain class is:
 Most used domain classes are:
 
 .. autoclass:: firanka.domain.SingleIntervalDomain
-    :members:
 
 .. autoclass:: firanka.domain.PointyDomain
-    :members:
 
 .. autoclass:: firanka.domain.EmptyDomain
-    :members:
 
 .. autoclass:: firanka.domain.PatchworkDomain
-    :members:
 
 .. autoclass:: firanka.domain.RealSetDomain
-    :members:

@@ -274,9 +274,16 @@ class PointyDomain(Domain):
 
     def __add__(self, other: 'Domain') -> 'Domain':
         if isinstance(other, PointyDomain):
-            return PointyDomain(self.points.union(other.points))
+            return PointyDomain(set(self.points).union(set(other.points)))
         else:
             return PatchworkDomain(other.domains + [self])
+
+    def __mul__(self, other):
+        points = []
+        for point in self.points:
+            if point in other:
+                points.append(point)
+        return PointyDomain(points)
 
     def __hash__(self) -> int:
         return functools.reduce(operator.xor, map(hash, self.points))
@@ -289,8 +296,16 @@ class PointyDomain(Domain):
 
 
 class PatchworkDomain(Domain):
+    """
+    A domain pieced together from other domains
+    """
     def __init__(self, domains: tp.Iterable[Domain]):
-        self.domains = list(domains)
+        self.domains = []
+        for domain in domains:
+            if isinstance(domain, PatchworkDomain):
+                self.domains.extend(domain.domains)
+            else:
+                self.domains.append(domain)
         self.domains.sort()
 
     def __contains__(self, item: float):

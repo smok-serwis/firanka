@@ -6,7 +6,7 @@ setup(
     name='firanka',
     version=__version__,
     packages=find_packages(exclude=['tests.*', 'tests', 'docs']),
-    install_requires=['sortedcontainers'],
+    install_requires=['sortedcontainers', 'sympy'],
     url='https://github.com/smok-serwis/firanka',
     author=u'Piotr Maślanka',
     author_email=u'pmaslanka@smok.co',
